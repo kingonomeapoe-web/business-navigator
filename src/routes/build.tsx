@@ -539,7 +539,7 @@ function TextStep({
   onChange: (value: string) => void;
   placeholder: string;
   onSubmit: () => void | Promise<void>;
-  onBack?: () => void;
+  onBack?: (() => void) | undefined;
 }) {
   return (
     <form
@@ -613,10 +613,10 @@ function StepActions({
   busy,
 }: {
   onNext: () => void | Promise<void>;
-  onBack?: () => void;
-  disabled?: boolean;
-  nextLabel?: string;
-  busy?: boolean;
+  onBack?: (() => void) | undefined;
+  disabled?: boolean | undefined;
+  nextLabel?: string | undefined;
+  busy?: boolean | undefined;
 }) {
   return (
     <div className="mt-10 flex items-center gap-3">
