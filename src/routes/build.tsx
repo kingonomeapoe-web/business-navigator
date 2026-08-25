@@ -125,7 +125,7 @@ function BuildPage() {
             return;
           }
         }
-        const created = await start({ data: undefined });
+        const created = await start({ data: {} });
         if (cancelled) return;
         window.localStorage.setItem(STORAGE_KEY, created.token);
         setToken(created.token);

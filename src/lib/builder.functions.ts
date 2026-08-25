@@ -112,7 +112,9 @@ export const getCatalog = createServerFn({ method: "GET" })
     });
   });
 
-export const startSession = createServerFn({ method: "POST" }).handler(async (): Promise<{ token: string }> => {
+export const startSession = createServerFn({ method: "POST" })
+  .inputValidator(() => ({}))
+  .handler(async (): Promise<{ token: string }> => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin.from("diagnostic_sessions").insert({}).select("session_token").single();
   if (error) throw new Error(error.message);
