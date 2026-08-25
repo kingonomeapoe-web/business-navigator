@@ -27,3 +27,7 @@ npm run dev
 - TypeScript
 - React
 - Tailwind CSS
+
+## Documentation
+
+- [Satphonix Business Builder — Product Document](docs/satphonix-business-builder-product-doc.md): current state, launch blockers, must haves, and good-to-haves.
