@@ -4,6 +4,20 @@ import { z } from "zod";
 import { currencyForCountry, isCurrency, type CurrencyCode } from "./currency";
 import { decide, type DiagnosticProfile } from "./recommend";
 
+const classificationSchema = z.object({
+  industry: z.string(),
+  specialization: z.string(),
+  business_model: z.string(),
+  primary_market: z.string(),
+  likely_conversion: z.string(),
+  lead_value: z.enum(["high", "medium", "low"]),
+  services: z.array(z.string()).max(8),
+  summary: z.string(),
+  scenario: z.string(),
+});
+
+export type Classification = z.infer<typeof classificationSchema>;
+
 export type CatalogComponent = {
   slug: string;
   name: string;
@@ -27,7 +41,7 @@ export type SessionRecord = {
   country: string | null;
   service_area: string | null;
   currency: CurrencyCode;
-  classification: Record<string, unknown>;
+  classification: Partial<Classification>;
   goals: string[];
   answers: Record<string, string[]>;
   selected_components: string[];
@@ -44,7 +58,7 @@ const toSession = (row: Record<string, unknown>): SessionRecord => ({
   country: (row["country"] as string) ?? null,
   service_area: (row["service_area"] as string) ?? null,
   currency: (isCurrency(String(row["currency"])) ? row["currency"] : "USD") as CurrencyCode,
-  classification: (row["classification"] as Record<string, unknown>) ?? {},
+  classification: (row["classification"] as Partial<Classification>) ?? {},
   goals: (row["goals"] as string[]) ?? [],
   answers: (row["answers"] as Record<string, string[]>) ?? {},
   selected_components: (row["selected_components"] as string[]) ?? [],
@@ -133,7 +147,7 @@ export const saveSession = createServerFn({ method: "POST" })
     }
     const { data: row, error } = await supabaseAdmin
       .from("diagnostic_sessions")
-      .update(patch)
+      .update(patch as never)
       .eq("session_token", data.token)
       .select("*")
       .single();
@@ -152,20 +166,6 @@ export const getSession = createServerFn({ method: "GET" })
       .maybeSingle();
     return row ? toSession(row as Record<string, unknown>) : null;
   });
-
-const classificationSchema = z.object({
-  industry: z.string(),
-  specialization: z.string(),
-  business_model: z.string(),
-  primary_market: z.string(),
-  likely_conversion: z.string(),
-  lead_value: z.enum(["high", "medium", "low"]),
-  services: z.array(z.string()).max(8),
-  summary: z.string(),
-  scenario: z.string(),
-});
-
-export type Classification = z.infer<typeof classificationSchema>;
 
 /** AI reads the free-text description. It never touches pricing or eligibility. */
 export const classifyBusiness = createServerFn({ method: "POST" })
