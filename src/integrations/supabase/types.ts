@@ -112,6 +112,42 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          business_name: string | null
+          country: string | null
+          created_at: string
+          currency: string
+          email: string
+          first_name: string | null
+          id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       diagnostic_sessions: {
         Row: {
           answers: Json
@@ -123,9 +159,12 @@ export type Database = {
           created_at: string
           currency: string
           email: string | null
+          email_captured_at: string | null
+          email_consent: boolean
           first_name: string | null
           goals: string[]
           id: string
+          marketing_opt_in: boolean
           region: string | null
           selected_components: string[]
           service_area: string | null
@@ -144,9 +183,12 @@ export type Database = {
           created_at?: string
           currency?: string
           email?: string | null
+          email_captured_at?: string | null
+          email_consent?: boolean
           first_name?: string | null
           goals?: string[]
           id?: string
+          marketing_opt_in?: boolean
           region?: string | null
           selected_components?: string[]
           service_area?: string | null
@@ -165,9 +207,12 @@ export type Database = {
           created_at?: string
           currency?: string
           email?: string | null
+          email_captured_at?: string | null
+          email_consent?: boolean
           first_name?: string | null
           goals?: string[]
           id?: string
+          marketing_opt_in?: boolean
           region?: string | null
           selected_components?: string[]
           service_area?: string | null
@@ -178,10 +223,433 @@ export type Database = {
         }
         Relationships: []
       }
-      quotes: {
+      email_deliveries: {
+        Row: {
+          attempts: number
+          created_at: string
+          error: string | null
+          id: string
+          idempotency_key: string
+          provider: string
+          provider_message_id: string | null
+          quote_id: string | null
+          session_id: string | null
+          status: string
+          template: string
+          to_email: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          idempotency_key: string
+          provider?: string
+          provider_message_id?: string | null
+          quote_id?: string | null
+          session_id?: string | null
+          status?: string
+          template: string
+          to_email: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          idempotency_key?: string
+          provider?: string
+          provider_message_id?: string | null
+          quote_id?: string | null
+          session_id?: string | null
+          status?: string
+          template?: string
+          to_email?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_deliveries_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_deliveries_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "diagnostic_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      internal_notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          payload: Json
+          status: string
+          subject: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind: string
+          payload?: Json
+          status?: string
+          subject: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          payload?: Json
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          component_slug: string
+          created_at: string
+          id: string
+          name: string
+          one_time: number
+          order_id: string
+          pillar: string
+          quantity: number
+          recurring_monthly: number
+        }
+        Insert: {
+          component_slug: string
+          created_at?: string
+          id?: string
+          name: string
+          one_time?: number
+          order_id: string
+          pillar?: string
+          quantity?: number
+          recurring_monthly?: number
+        }
+        Update: {
+          component_slug?: string
+          created_at?: string
+          id?: string
+          name?: string
+          one_time?: number
+          order_id?: string
+          pillar?: string
+          quantity?: number
+          recurring_monthly?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          amount_due: number
+          amount_paid: number
+          created_at: string
+          currency: string
+          customer_id: string
+          deposit_amount: number
+          id: string
+          one_time_total: number
+          order_number: string
+          payment_plan: string
+          quote_id: string
+          quote_version_id: string
+          recurring_total: number
+          session_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_due?: number
+          amount_paid?: number
+          created_at?: string
+          currency: string
+          customer_id: string
+          deposit_amount?: number
+          id?: string
+          one_time_total?: number
+          order_number: string
+          payment_plan?: string
+          quote_id: string
+          quote_version_id: string
+          recurring_total?: number
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_due?: number
+          amount_paid?: number
+          created_at?: string
+          currency?: string
+          customer_id?: string
+          deposit_amount?: number
+          id?: string
+          one_time_total?: number
+          order_number?: string
+          payment_plan?: string
+          quote_id?: string
+          quote_version_id?: string
+          recurring_total?: number
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_quote_version_id_fkey"
+            columns: ["quote_version_id"]
+            isOneToOne: false
+            referencedRelation: "quote_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "diagnostic_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          event_type: string
+          id: string
+          payload: Json
+          payment_id: string | null
+          processed_at: string | null
+          provider: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          event_type: string
+          id?: string
+          payload?: Json
+          payment_id?: string | null
+          processed_at?: string | null
+          provider: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          payment_id?: string | null
+          processed_at?: string | null
+          provider?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_events_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_id: string
+          id: string
+          kind: string
+          order_id: string
+          provider: string
+          provider_reference: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency: string
+          customer_id: string
+          id?: string
+          kind?: string
+          order_id: string
+          provider: string
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_id?: string
+          id?: string
+          kind?: string
+          order_id?: string
+          provider?: string
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          name: string
+          onboarding_completed_at: string | null
+          order_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          name: string
+          onboarding_completed_at?: string | null
+          order_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          name?: string
+          onboarding_completed_at?: string | null
+          order_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_versions: {
         Row: {
           created_at: string
           currency: string
+          deposit_amount: number
+          id: string
+          items: Json
+          one_time_total: number
+          quote_id: string
+          recurring_total: number
+          snapshot_hash: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          deposit_amount?: number
+          id?: string
+          items?: Json
+          one_time_total?: number
+          quote_id: string
+          recurring_total?: number
+          snapshot_hash: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          deposit_amount?: number
+          id?: string
+          items?: Json
+          one_time_total?: number
+          quote_id?: string
+          recurring_total?: number
+          snapshot_hash?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_versions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          accepted_at: string | null
+          accepted_by_email: string | null
+          accepted_by_name: string | null
+          accepted_version: number | null
+          access_token: string
+          created_at: string
+          currency: string
+          current_version: number
+          customer_id: string | null
           deposit_amount: number
           expires_at: string
           id: string
@@ -189,13 +657,21 @@ export type Database = {
           one_time_total: number
           quote_number: string
           recurring_total: number
+          sent_at: string | null
           session_id: string
           status: string
           updated_at: string
         }
         Insert: {
+          accepted_at?: string | null
+          accepted_by_email?: string | null
+          accepted_by_name?: string | null
+          accepted_version?: number | null
+          access_token?: string
           created_at?: string
           currency: string
+          current_version?: number
+          customer_id?: string | null
           deposit_amount?: number
           expires_at?: string
           id?: string
@@ -203,13 +679,21 @@ export type Database = {
           one_time_total?: number
           quote_number: string
           recurring_total?: number
+          sent_at?: string | null
           session_id: string
           status?: string
           updated_at?: string
         }
         Update: {
+          accepted_at?: string | null
+          accepted_by_email?: string | null
+          accepted_by_name?: string | null
+          accepted_version?: number | null
+          access_token?: string
           created_at?: string
           currency?: string
+          current_version?: number
+          customer_id?: string | null
           deposit_amount?: number
           expires_at?: string
           id?: string
@@ -217,16 +701,105 @@ export type Database = {
           one_time_total?: number
           quote_number?: string
           recurring_total?: number
+          sent_at?: string | null
           session_id?: string
           status?: string
           updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "quotes_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "quotes_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "diagnostic_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rate_limits: {
+        Row: {
+          bucket: string
+          count: number
+          id: string
+          subject: string
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          count?: number
+          id?: string
+          subject: string
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          count?: number
+          id?: string
+          subject?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          currency: string
+          current_period_end: string | null
+          customer_id: string
+          id: string
+          monthly_amount: number
+          order_id: string
+          provider: string
+          provider_reference: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          current_period_end?: string | null
+          customer_id: string
+          id?: string
+          monthly_amount?: number
+          order_id: string
+          provider: string
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          customer_id?: string
+          id?: string
+          monthly_amount?: number
+          order_id?: string
+          provider?: string
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
