@@ -13,6 +13,7 @@ import {
   startSession,
   type Classification,
 } from "@/lib/builder.functions";
+import { captureEmail, emailQuote } from "@/lib/commerce.functions";
 import { DIAGNOSTIC_QUESTIONS, GOAL_OPTIONS, PILLARS } from "@/lib/diagnostic-content";
 
 export const Route = createFileRoute("/build")({
