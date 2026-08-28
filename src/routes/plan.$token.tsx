@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Info, Loader2, Minus, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { SiteFooter, SiteHeader } from "@/components/site-header";
 import { buildPlan, type PlanItem } from "@/lib/builder.functions";
+import { getQuoteLink } from "@/lib/commerce.functions";
 import { formatMoney } from "@/lib/currency";
 import { CONTENT_MULTIPLICATION, PILLARS } from "@/lib/diagnostic-content";
 
@@ -32,7 +33,12 @@ export const Route = createFileRoute("/plan/$token")({
 
 function PlanPage() {
   const { token } = Route.useParams();
+  const navigate = useNavigate();
   const plan = useServerFn(buildPlan);
+  const persistSelection = useServerFn(buildPlan);
+  const quoteLink = useServerFn(getQuoteLink);
+  const [accepting, setAccepting] = useState(false);
+  const [acceptError, setAcceptError] = useState<string | null>(null);
   const [overrides, setOverrides] = useState<Record<string, boolean> | null>(null);
   const [expanded, setExpanded] = useState(false);
 
@@ -55,6 +61,22 @@ function PlanPage() {
 
   const toggle = (slug: string, next: boolean) =>
     setOverrides((current) => ({ ...(current ?? Object.fromEntries(items.map((i) => [i.slug, i.selected]))), [slug]: next }));
+
+  const onAcceptAndContinue = async () => {
+    setAcceptError(null);
+    setAccepting(true);
+    try {
+      const selectedSlugs = items.filter((item) => item.selected && item.verdict !== "excluded").map((i) => i.slug);
+      const saved = await persistSelection({ data: { token, selected: selectedSlugs, persistQuote: true } });
+      const accessToken = saved.accessToken ?? (await quoteLink({ data: { token } })).accessToken;
+      if (!accessToken) throw new Error("no quote");
+      navigate({ to: "/q/$accessToken", params: { accessToken } });
+    } catch {
+      setAcceptError("We couldn't open your quote. Please try again.");
+    } finally {
+      setAccepting(false);
+    }
+  };
 
   if (isPending) {
     return (
@@ -189,18 +211,22 @@ function PlanPage() {
               )}
 
               <div className="mt-6 space-y-2.5">
-                <button className="w-full rounded-full bg-primary px-5 py-3.5 text-base font-medium text-primary-foreground">
-                  Build the complete system
-                </button>
-                <button className="w-full rounded-full border border-border px-5 py-3.5 text-base transition hover:bg-secondary">
-                  Start with the essentials
+                <button
+                  type="button"
+                  disabled={accepting}
+                  onClick={onAcceptAndContinue}
+                  className="w-full rounded-full bg-primary px-5 py-3.5 text-base font-medium text-primary-foreground disabled:opacity-60"
+                >
+                  {accepting ? "Preparing your quote…" : "Accept & continue"}
                 </button>
                 <button className="w-full rounded-full px-5 py-3 text-sm text-muted-foreground transition hover:text-foreground">
                   Talk to Satphonix first
                 </button>
               </div>
+              {acceptError && <p className="mt-3 text-sm text-destructive">{acceptError}</p>}
               <p className="mt-4 text-xs text-muted-foreground">
-                Accepting a quote and paying a deposit online is coming in the next release.
+                Accepting locks this scope and price. You'll choose between a 50% deposit and paying in full on the
+                next screen.
               </p>
             </div>
 

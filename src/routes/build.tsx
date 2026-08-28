@@ -13,6 +13,7 @@ import {
   startSession,
   type Classification,
 } from "@/lib/builder.functions";
+import { captureEmail, emailQuote } from "@/lib/commerce.functions";
 import { DIAGNOSTIC_QUESTIONS, GOAL_OPTIONS, PILLARS } from "@/lib/diagnostic-content";
 
 export const Route = createFileRoute("/build")({
@@ -49,6 +50,7 @@ type StepId =
   | "goals"
   | `q:${string}`
   | "scenario"
+  | "email"
   | "finishing";
 
 function BuildPage() {
@@ -58,6 +60,8 @@ function BuildPage() {
   const load = useServerFn(getSession);
   const classify = useServerFn(classifyBusiness);
   const plan = useServerFn(buildPlan);
+  const saveEmail = useServerFn(captureEmail);
+  const emailPlan = useServerFn(emailQuote);
 
   const [token, setToken] = useState<string | null>(null);
   const [step, setStep] = useState<StepId>("first_name");
@@ -74,6 +78,8 @@ function BuildPage() {
   const [classification, setClassification] = useState<Classification | null>(null);
   const [goals, setGoals] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
 
   const questions = useMemo(
     () => DIAGNOSTIC_QUESTIONS.filter((q) => !q.goals || q.goals.some((g) => goals.includes(g))),
@@ -93,6 +99,7 @@ function BuildPage() {
       "goals",
       ...questions.map((q) => `q:${q.id}` as StepId),
       "scenario",
+      "email",
       "finishing",
     ],
     [questions],
@@ -118,6 +125,7 @@ function BuildPage() {
             setCountry(session.country ?? "");
             setServiceArea(session.service_area ?? "");
             setGoals(session.goals ?? []);
+            setEmail(session.email ?? "");
             setAnswers(session.answers ?? {});
             if (Object.keys(session.classification ?? {}).length > 0) {
               setClassification(session.classification as unknown as Classification);
@@ -195,6 +203,11 @@ function BuildPage() {
       try {
         await save({ data: { token, patch: { goals, answers, step: "complete" } } });
         await plan({ data: { token, persistQuote: true } });
+        try {
+          await emailPlan({ data: { token } });
+        } catch (err) {
+          console.error("quote email failed", err);
+        }
         if (!cancelled) navigate({ to: "/plan/$token", params: { token } });
       } catch (err) {
         console.error(err);
@@ -204,7 +217,7 @@ function BuildPage() {
     return () => {
       cancelled = true;
     };
-  }, [answers, goals, navigate, plan, save, step, token]);
+  }, [answers, emailPlan, goals, navigate, plan, save, step, token]);
 
   const businessLabel = businessName.trim() || "your business";
 
@@ -451,6 +464,65 @@ function BuildPage() {
                   They find {businessLabel}. Everything we recommend next exists to make that moment end well.
                 </p>
                 <StepActions onBack={goBack} onNext={goNext} nextLabel="Show me my business system" />
+              </div>
+            )}
+
+            {step === "email" && (
+              <div>
+                <p className="eyebrow">Where should we send it?</p>
+                <h1 className="display mt-4 text-3xl sm:text-4xl">
+                  Your system for {businessLabel} is ready.
+                </h1>
+                <p className="mt-5 text-muted-foreground">
+                  We'll email you a private link so you can reopen it, share it with a partner, and come back to it
+                  when you're ready. No spam, ever.
+                </p>
+                <input
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@yourbusiness.com"
+                  className="mt-6 w-full rounded-xl border border-border bg-background px-4 py-3.5 text-base"
+                />
+                <label className="mt-4 flex items-start gap-3 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(event) => setConsent(event.target.checked)}
+                    className="mt-1"
+                  />
+                  <span>
+                    Yes, email me my personalised plan and quote, and contact me about it.
+                  </span>
+                </label>
+                {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+                <StepActions
+                  onBack={goBack}
+                  onNext={async () => {
+                    setError(null);
+                    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.trim())) {
+                      setError("Please enter a valid email address.");
+                      return;
+                    }
+                    if (!consent) {
+                      setError("We need your permission before we can email your plan.");
+                      return;
+                    }
+                    if (!token) return;
+                    setBusy(true);
+                    try {
+                      await saveEmail({ data: { token, email: email.trim(), consent: true } });
+                      goNext();
+                    } catch {
+                      setError("We couldn't save that email. Please check it and try again.");
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                  nextLabel={busy ? "Saving…" : "Email me my plan"}
+                />
               </div>
             )}
 
