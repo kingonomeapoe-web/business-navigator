@@ -40,6 +40,7 @@ export type SessionRecord = {
   region: string | null;
   country: string | null;
   service_area: string | null;
+  email: string | null;
   currency: CurrencyCode;
   classification: Partial<Classification>;
   goals: string[];
@@ -57,6 +58,7 @@ const toSession = (row: Record<string, unknown>): SessionRecord => ({
   region: (row["region"] as string) ?? null,
   country: (row["country"] as string) ?? null,
   service_area: (row["service_area"] as string) ?? null,
+  email: (row["email"] as string) ?? null,
   currency: (isCurrency(String(row["currency"])) ? row["currency"] : "USD") as CurrencyCode,
   classification: (row["classification"] as Partial<Classification>) ?? {},
   goals: (row["goals"] as string[]) ?? [],
