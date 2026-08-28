@@ -250,6 +250,8 @@ export type Plan = {
   recurringTotal: number;
   deposit: number;
   quoteNumber: string;
+  accessToken: string | null;
+  quoteStatus: string | null;
 };
 
 export const buildPlan = createServerFn({ method: "POST" })
@@ -301,29 +303,36 @@ export const buildPlan = createServerFn({ method: "POST" })
 
     const quoteNumber = `SPX-${String(session.token).slice(0, 8).toUpperCase()}`;
 
+    let accessToken: string | null = null;
+    let quoteStatus: string | null = null;
+
     if (data.persistQuote) {
-      await supabaseAdmin.from("diagnostic_sessions").update({ selected_components: [...selected] }).eq("session_token", data.token);
+      const { persistQuote } = await import("./commerce.server");
       await supabaseAdmin
-        .from("quotes")
-        .upsert(
-          {
-            session_id: String((row as Record<string, unknown>)["id"]),
-            quote_number: quoteNumber,
-            currency: session.currency,
-            items: chosen.map((i) => ({
-              slug: i.slug,
-              name: i.name,
-              pillar: i.pillar,
-              one_time: i.one_time,
-              recurring_monthly: i.recurring_monthly,
-            })),
-            one_time_total: oneTimeTotal,
-            recurring_total: recurringTotal,
-            deposit_amount: deposit,
-            status: "sent",
-          },
-          { onConflict: "quote_number" },
-        );
+        .from("diagnostic_sessions")
+        .update({ selected_components: [...selected] })
+        .eq("session_token", data.token);
+
+      const result = await persistQuote({
+        sessionId: String((row as Record<string, unknown>)["id"]),
+        quoteNumber,
+        snapshot: {
+          currency: session.currency,
+          items: chosen.map((i) => ({
+            slug: i.slug,
+            name: i.name,
+            pillar: i.pillar,
+            quantity: 1,
+            one_time: i.one_time,
+            recurring_monthly: i.recurring_monthly,
+          })),
+          oneTimeTotal,
+          recurringTotal,
+          deposit,
+        },
+      });
+      accessToken = result.accessToken;
+      quoteStatus = result.locked ? "locked" : "open";
     }
 
     return {
@@ -334,5 +343,7 @@ export const buildPlan = createServerFn({ method: "POST" })
       recurringTotal,
       deposit,
       quoteNumber,
+      accessToken,
+      quoteStatus,
     };
   });
