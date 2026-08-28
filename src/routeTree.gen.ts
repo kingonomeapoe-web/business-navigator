@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BuildRouteImport } from './routes/build'
 import { Route as PlanTokenRouteImport } from './routes/plan.$token'
+import { Route as QAccessTokenRouteImport } from './routes/q.$accessToken'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const PlanTokenRoute = PlanTokenRouteImport.update({
   path: '/plan/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QAccessTokenRoute = QAccessTokenRouteImport.update({
+  id: '/q/$accessToken',
+  path: '/q/$accessToken',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
+  '/q/$accessToken': typeof QAccessTokenRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
+  '/q/$accessToken': typeof QAccessTokenRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -53,18 +61,30 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
+  '/q/$accessToken': typeof QAccessTokenRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/build' | '/plan/$token' | '/api/public/payments/webhook'
+  fullPaths:
+    | '/'
+    | '/build'
+    | '/plan/$token'
+    | '/q/$accessToken'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/build' | '/plan/$token' | '/api/public/payments/webhook'
+  to:
+    | '/'
+    | '/build'
+    | '/plan/$token'
+    | '/q/$accessToken'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
     | '/build'
     | '/plan/$token'
+    | '/q/$accessToken'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -72,6 +92,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BuildRoute: typeof BuildRoute
   PlanTokenRoute: typeof PlanTokenRoute
+  QAccessTokenRoute: typeof QAccessTokenRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -98,6 +119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlanTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/q/$accessToken': {
+      id: '/q/$accessToken'
+      path: '/q/$accessToken'
+      fullPath: '/q/$accessToken'
+      preLoaderRoute: typeof QAccessTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -112,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BuildRoute: BuildRoute,
   PlanTokenRoute: PlanTokenRoute,
+  QAccessTokenRoute: QAccessTokenRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
