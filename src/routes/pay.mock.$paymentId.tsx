@@ -33,8 +33,10 @@ function MockCheckout() {
     setBusy(true);
     try {
       const result = await complete({ data: { paymentId, outcome } });
-      setMessage(`Payment ${outcome} (${result.status}). You can close this page.`);
-      if (outcome === "succeeded") setTimeout(() => navigate({ to: "/" }), 1200);
+      setMessage(`Payment ${outcome} (${result.status}).`);
+      if (result.accessToken) {
+        navigate({ to: "/q/$accessToken", params: { accessToken: result.accessToken } });
+      }
     } finally {
       setBusy(false);
     }

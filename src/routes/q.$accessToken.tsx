@@ -67,8 +67,10 @@ function QuotePage() {
   }
 
   const currency = data.currency;
-  const paid = data.status === "paid";
-  const payable = data.status === "accepted" || data.status === "partially_paid";
+  const amountPaid = data.order?.amountPaid ?? 0;
+  const balance = Math.max(data.oneTimeTotal - amountPaid, 0);
+  const paid = data.status === "paid" || amountPaid > 0;
+  const payable = !paid && data.status === "accepted";
   const expired = data.status === "expired" || data.status === "cancelled";
 
   const onAccept = async () => {
@@ -124,7 +126,7 @@ function QuotePage() {
 
         {paid && (
           <p className="mt-5 text-muted-foreground">
-            Your deposit is received and your project has been created. The next step is telling us about your brand
+            Your payment is received and your project has been created. The next step is telling us about your brand
             so we can start building.
           </p>
         )}
@@ -239,7 +241,7 @@ function QuotePage() {
                 onClick={() => onPay("full")}
                 className="w-full rounded-full border border-border px-6 py-3.5 transition hover:bg-secondary disabled:opacity-60"
               >
-                Pay the full {money(data.oneTimeTotal - (data.order?.amountPaid ?? 0), currency)}
+                Pay the full {money(balance, currency)}
               </button>
             </div>
             {data.recurringTotal > 0 && (
@@ -260,14 +262,29 @@ function QuotePage() {
               Project created: {data.projectName ?? "your Satphonix system"}. A receipt is on its way to{" "}
               {data.email ?? "your email"}.
             </p>
-            <Link
-              to="/build"
-              className="mt-6 inline-block rounded-full bg-primary px-6 py-3.5 text-primary-foreground"
-            >
-              Complete your business setup
-            </Link>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Brand and content intake opens in the next release — we'll email you the moment it's ready.
+            {balance > 0 && (
+              <>
+                <p className="mt-4 text-sm">
+                  Remaining balance: <strong>{money(balance, currency)}</strong>, due before your system goes live.
+                </p>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => onPay("full")}
+                  className="mt-4 w-full rounded-full border border-border px-6 py-3.5 transition hover:bg-secondary disabled:opacity-60"
+                >
+                  Pay the remaining {money(balance, currency)}
+                </button>
+              </>
+            )}
+            {data.recurringTotal > 0 && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                Your monthly running cost of {money(data.recurringTotal, currency)} starts once your system goes live.
+              </p>
+            )}
+            <p className="mt-5 text-xs text-muted-foreground">
+              Brand and content intake opens in the next release — we'll email you the moment it's ready. Keep this
+              link: it's your order record.
             </p>
           </div>
         )}
