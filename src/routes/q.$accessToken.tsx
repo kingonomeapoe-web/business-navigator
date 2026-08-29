@@ -282,14 +282,9 @@ function QuotePage() {
                 Your monthly running cost of {money(data.recurringTotal, currency)} starts once your system goes live.
               </p>
             )}
-            <Link
-              to="/build"
-              className="mt-6 inline-block rounded-full bg-primary px-6 py-3.5 text-primary-foreground"
-            >
-              Complete your business setup
-            </Link>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Brand and content intake opens in the next release — we'll email you the moment it's ready.
+            <p className="mt-5 text-xs text-muted-foreground">
+              Brand and content intake opens in the next release — we'll email you the moment it's ready. Keep this
+              link: it's your order record.
             </p>
           </div>
         )}
