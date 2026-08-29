@@ -1,7 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assetIdSchema, projectIdSchema, registerAssetSchema, saveResponsesSchema } from "./portal-schemas";
+import {
+  assetIdSchema,
+  notificationIdSchema,
+  projectIdSchema,
+  registerAssetSchema,
+  saveResponsesSchema,
+} from "./portal-schemas";
 import type { AdminProjectView, PortalData } from "./portal.server";
 
 /** Links the signed-in user to the customer their payment created. */
@@ -67,7 +73,7 @@ export const finishOnboarding = createServerFn({ method: "POST" })
 
 export const markNotificationRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z_id.parse(input))
+  .inputValidator((input: unknown) => notificationIdSchema.parse(input))
   .handler(async ({ data, context }): Promise<{ ok: boolean }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { assertProjectOwner } = await import("./portal.server");

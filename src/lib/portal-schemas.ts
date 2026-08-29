@@ -24,3 +24,5 @@ export const registerAssetSchema = projectIdSchema.extend({
 });
 
 export const assetIdSchema = z.object({ assetId: z.string().uuid() });
+
+export const notificationIdSchema = z.object({ id: z.string().uuid() });
