@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/admin/projects/")({
 
 function AdminProjects() {
   const load = useServerFn(adminListProjects);
-  const { data, isPending, error } = useQuery({ queryKey: ["admin-projects"], queryFn: () => load() });
+  const { data, isPending, error } = useQuery({ queryKey: ["admin-projects"], queryFn: () => load(), retry: false });
 
   return (
     <PortalShell>
