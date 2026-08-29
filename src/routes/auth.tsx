@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { SiteFooter, SiteHeader } from "@/components/site-header";
 import { supabase } from "@/integrations/supabase/client";
 
-type Search = { next?: string };
+type Search = { next?: string | undefined };
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
