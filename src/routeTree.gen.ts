@@ -16,6 +16,7 @@ import { Route as BuildRouteImport } from './routes/build'
 import { Route as PlanTokenRouteImport } from './routes/plan.$token'
 import { Route as QAccessTokenRouteImport } from './routes/q.$accessToken'
 import { Route as AuthenticatedPortalIndexRouteImport } from './routes/_authenticated/portal/index'
+import { Route as AuthenticatedPortalOnboardingRouteImport } from './routes/_authenticated/portal/onboarding'
 import { Route as PayMockPaymentIdRouteImport } from './routes/pay.mock.$paymentId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -54,6 +55,12 @@ const AuthenticatedPortalIndexRoute =
     path: '/portal/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPortalOnboardingRoute =
+  AuthenticatedPortalOnboardingRouteImport.update({
+    id: '/portal/onboarding',
+    path: '/portal/onboarding',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const PayMockPaymentIdRoute = PayMockPaymentIdRouteImport.update({
   id: '/pay/mock/$paymentId',
   path: '/pay/mock/$paymentId',
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
+  '/portal/onboarding': typeof AuthenticatedPortalOnboardingRoute
   '/pay/mock/$paymentId': typeof PayMockPaymentIdRoute
   '/portal/': typeof AuthenticatedPortalIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
+  '/portal/onboarding': typeof AuthenticatedPortalOnboardingRoute
   '/pay/mock/$paymentId': typeof PayMockPaymentIdRoute
   '/portal': typeof AuthenticatedPortalIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -94,6 +103,7 @@ export interface FileRoutesById {
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
+  '/_authenticated/portal/onboarding': typeof AuthenticatedPortalOnboardingRoute
   '/pay/mock/$paymentId': typeof PayMockPaymentIdRoute
   '/_authenticated/portal/': typeof AuthenticatedPortalIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/build'
     | '/plan/$token'
     | '/q/$accessToken'
+    | '/portal/onboarding'
     | '/pay/mock/$paymentId'
     | '/portal/'
     | '/api/public/payments/webhook'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/build'
     | '/plan/$token'
     | '/q/$accessToken'
+    | '/portal/onboarding'
     | '/pay/mock/$paymentId'
     | '/portal'
     | '/api/public/payments/webhook'
@@ -127,6 +139,7 @@ export interface FileRouteTypes {
     | '/build'
     | '/plan/$token'
     | '/q/$accessToken'
+    | '/_authenticated/portal/onboarding'
     | '/pay/mock/$paymentId'
     | '/_authenticated/portal/'
     | '/api/public/payments/webhook'
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/portal/onboarding': {
+      id: '/_authenticated/portal/onboarding'
+      path: '/portal/onboarding'
+      fullPath: '/portal/onboarding'
+      preLoaderRoute: typeof AuthenticatedPortalOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/pay/mock/$paymentId': {
       id: '/pay/mock/$paymentId'
       path: '/pay/mock/$paymentId'
@@ -212,10 +232,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedPortalOnboardingRoute: typeof AuthenticatedPortalOnboardingRoute
   AuthenticatedPortalIndexRoute: typeof AuthenticatedPortalIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedPortalOnboardingRoute: AuthenticatedPortalOnboardingRoute,
   AuthenticatedPortalIndexRoute: AuthenticatedPortalIndexRoute,
 }
 
