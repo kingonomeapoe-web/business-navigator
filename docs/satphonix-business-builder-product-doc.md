@@ -2,8 +2,8 @@
 
 **Company:** Satphonix Business Development
 **Product:** Satphonix Business Builder
-**Version:** V1 (public funnel shipped, commerce + delivery pending)
-**Date:** 25 August 2026
+**Version:** V1 (public funnel + commerce shipped; delivery/onboarding pending)
+**Date:** 29 August 2026
 
 ---
 
@@ -54,6 +54,23 @@ Every capability in the catalogue belongs to one pillar. The pillars are the lan
 - **Multi-currency** — USD, GBP, NGN, EUR; currency auto-derived from the visitor's stated country.
 - **Backend** — `components`, `component_prices`, `diagnostic_sessions`, `quotes` with RLS and seeded catalogue.
 
+### Shipped in Phase 1 — commerce and lead capture
+- **Email capture with consent** — a required step at the end of the diagnostic, before the plan is revealed; consent and capture timestamp stored on the session.
+- **Quote lifecycle** — `draft → sent → accepted → partially_paid → paid`, plus `expired` and `cancelled`. Accepting locks the scope and price; re-running the plan on a locked quote can no longer change it.
+- **Immutable quote versions** — every distinct scope/price snapshot is hashed and written to `quote_versions`; orders reference the exact version bought.
+- **Secure quote link** — `/q/:accessToken` guarded by a 24-byte random token, with expiry. No enumeration, no listing endpoints.
+- **Quote email** — transactional send through a provider abstraction (Resend when `RESEND_API_KEY` is set, logged delivery otherwise), tracked in `email_deliveries` with an idempotency key.
+- **Acceptance** — name and email captured against the quote, version recorded.
+- **Payments** — provider abstraction with a Stripe adapter and a mock checkout for environments without a live provider. 50% deposit or pay-in-full, multi-currency, recurring items tracked in `subscriptions`.
+- **Commerce records** — `customers`, `orders`, `order_items`, `payments`, `payment_events`, `subscriptions`, `projects`, created server-side on payment success.
+- **Idempotent webhook** — `/api/public/payments/webhook` verifies the provider signature and de-duplicates on `payment_events.event_id`; replaying an event does not double-count a payment.
+- **Post-payment confirmation** — the quote link becomes the order record: amount received, order number, project created, remaining balance, and when the monthly cost starts.
+- **Internal notifications** — a row in `internal_notifications` on quote generated, quote accepted, payment succeeded and project created.
+- **Rate limiting** — fixed-window limits in Postgres on classification, email capture, quote reads, acceptance and payment starts.
+
+### Verified in Phase 1
+End-to-end live run: Brighton dental practice → GBP plan (£2,192 one-off, £24/month) → email capture → quote email logged → acceptance → £1,096 deposit paid through mock checkout → order `SPXO-…` with `partially_paid` status, project created, four internal notifications, and a replayed payment event correctly ignored.
+
 ### Verified
 End-to-end run: a Kent law firm produced a £2,936 GBP personalised plan.
 
@@ -65,17 +82,17 @@ Nothing below is optional for taking money from a stranger without a phone call.
 
 | # | Blocker | Why it blocks launch |
 |---|---|---|
-| B1 | **Payment capture** (Paddle or Stripe, multi-currency, 50% deposit + recurring subscription for monthly items) | The product's entire premise is self-service purchase. Without it the funnel is a lead form. |
-| B2 | **Quote delivery by email** | Users will not decide in one sitting. A quote that can't be re-opened or forwarded to a partner dies. Needs a verified sending domain and a resumable plan link. |
-| B3 | **Email capture with consent** before the plan is revealed, or immediately after | Currently a completed diagnostic can leave no contactable record. This is the single largest revenue leak. |
+| ~~B1~~ | ~~**Payment capture** (Paddle or Stripe, multi-currency, 50% deposit + recurring subscription for monthly items)~~ — **shipped** (Stripe adapter; needs live keys and provider account) | The product's entire premise is self-service purchase. |
+| ~~B2~~ | **Quote delivery by email** — **shipped**; still needs a verified sending domain and `RESEND_API_KEY` | Users will not decide in one sitting. A quote that can't be re-opened or forwarded to a partner dies. Needs a verified sending domain and a resumable plan link. |
+| ~~B3~~ | **Email capture with consent** — **shipped** as a required step before the plan | Currently a completed diagnostic can leave no contactable record. This is the single largest revenue leak. |
 | B4 | **Session security review of `diagnostic_sessions`** | Plan URLs are token-guessable-adjacent and sessions hold personal data. Confirm RLS, admin-only writes, token entropy, and expiry before public traffic. |
 | B5 | **Legal pages** — terms of service, privacy policy, refund/cancellation terms, cookie notice | Required by payment providers and by UK/EU law given the markets targeted. |
-| B6 | **Post-purchase confirmation and next-step page** | A payment that ends on a blank screen generates instant chargebacks and support load. |
-| B7 | **Internal notification on quote and on purchase** | Satphonix must know a sale happened without polling the database. |
+| ~~B6~~ | **Post-purchase confirmation and next-step page** — **shipped** | A payment that ends on a blank screen generates instant chargebacks and support load. |
+| ~~B7~~ | **Internal notification on quote and on purchase** — **shipped** (database queue; email/Slack fan-out still to do) | Satphonix must know a sale happened without polling the database. |
 | B8 | **Pricing sign-off** for all four currencies | Seeded prices are provisional. Launching with wrong NGN or EUR pricing is unrecoverable in public. |
 | B9 | **Mobile QA pass across the full funnel** on real devices | The majority of the audience is mobile-first; the funnel is long. |
 | B10 | **Analytics and funnel instrumentation** (step-level drop-off) | Launching blind means no ability to diagnose a failing funnel. |
-| B11 | **AI failure and abuse handling** — rate limiting on classification, prompt-injection resistance on free-text description | A public LLM endpoint with no limits is a cost and safety incident waiting to happen. |
+| ~~B11~~ | **AI failure and abuse handling** — rate limiting **shipped**; prompt-injection hardening still open — rate limiting on classification, prompt-injection resistance on free-text description | A public LLM endpoint with no limits is a cost and safety incident waiting to happen. |
 | B12 | **SEO and social metadata per route** + sitemap and robots | The funnel is the marketing asset; it must be shareable and indexable. |
 
 ---
@@ -168,10 +185,24 @@ North star: **paid deposits per 100 diagnostics started.**
 
 ## 11. Recommended sequence
 
-1. **Close the loop** — email capture, quote email, resumable link, internal notification. (B2, B3, B7)
-2. **Take money** — payment provider, order records, confirmation page, receipts. (B1, B6)
+1. ~~**Close the loop** — email capture, quote email, resumable link, internal notification. (B2, B3, B7)~~ — done
+2. ~~**Take money** — payment provider, order records, confirmation page, receipts. (B1, B6)~~ — done in code; still needs live Stripe keys, a verified email domain and price sign-off (B8)
 3. **Make it lawful and safe** — legal pages, RLS/session review, rate limiting. (B4, B5, B11)
 4. **Make it measurable** — funnel analytics, SEO metadata. (B10, B12)
 5. **Deliver what was sold** — accounts, onboarding intake, progress tracker.
 6. **Run it** — admin catalogue and pricing management, quote overrides.
 7. **Grow it** — presets, PDF quotes, previews, expansion purchases.
+
+
+---
+
+## 12. What Phase 1 still needs before real money moves
+
+| Item | Action |
+|---|---|
+| Stripe account and keys | Add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`; the mock checkout self-disables the moment a live key exists. Point the Stripe webhook at `/api/public/payments/webhook`. |
+| Sending domain | Add `RESEND_API_KEY` and verify the Satphonix sending domain; until then quote emails are recorded but not delivered. |
+| Recurring billing | Monthly items are recorded in `subscriptions` as pending; the provider-side subscription is created on first live charge and needs testing against a real account. |
+| Receipts | Payment succeeds and confirms on screen; a downloadable receipt/invoice document is not yet generated. |
+| Legal pages | Still open (B5) — required by the payment provider before going live. |
+| Pricing sign-off | Still open (B8). |
