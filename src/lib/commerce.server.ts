@@ -709,6 +709,19 @@ export async function applyPaidOrder(orderId: string): Promise<void> {
       .single();
     projectName = createdProject?.name ?? name;
 
+    if (createdProject) {
+      const { notifyClient } = await import("./portal.server");
+      await notifyClient({
+        projectId: createdProject.id,
+        customerId: order.customer_id,
+        kind: "onboarding_started",
+        title: "Your onboarding is open",
+        body: "Confirm your business details, share your brand and upload your assets so we can start building.",
+        idempotencyKey: `onboarding_started:${createdProject.id}`,
+      });
+    }
+
+
     if (Number(order.recurring_total) > 0) {
       await supabase.from("subscriptions").insert({
         customer_id: order.customer_id,
