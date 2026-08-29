@@ -282,10 +282,17 @@ function QuotePage() {
                 Your monthly running cost of {money(data.recurringTotal, currency)} starts once your system goes live.
               </p>
             )}
-            <p className="mt-5 text-xs text-muted-foreground">
-              Brand and content intake opens in the next release — we'll email you the moment it's ready. Keep this
-              link: it's your order record.
+            <a
+              href={`/auth?next=%2Fportal`}
+              className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3.5 text-primary-foreground"
+            >
+              Set up your client portal
+            </a>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Create your account with {data.email ?? "the email on this order"} to confirm your details, upload your
+              brand and finish onboarding. Keep this link: it's your order record.
             </p>
+
           </div>
         )}
       </main>
