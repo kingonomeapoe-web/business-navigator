@@ -10,15 +10,30 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BuildRouteImport } from './routes/build'
 import { Route as PlanTokenRouteImport } from './routes/plan.$token'
 import { Route as QAccessTokenRouteImport } from './routes/q.$accessToken'
+import { Route as AuthenticatedPortalIndexRouteImport } from './routes/_authenticated/portal/index'
+import { Route as AuthenticatedPortalOnboardingRouteImport } from './routes/_authenticated/portal/onboarding'
 import { Route as PayMockPaymentIdRouteImport } from './routes/pay.mock.$paymentId'
+import { Route as AuthenticatedAdminProjectsIndexRouteImport } from './routes/_authenticated/admin/projects/index'
+import { Route as AuthenticatedAdminProjectsProjectIdRouteImport } from './routes/_authenticated/admin/projects/$projectId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuildRoute = BuildRouteImport.update({
@@ -36,11 +51,35 @@ const QAccessTokenRoute = QAccessTokenRouteImport.update({
   path: '/q/$accessToken',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPortalIndexRoute =
+  AuthenticatedPortalIndexRouteImport.update({
+    id: '/portal/',
+    path: '/portal/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPortalOnboardingRoute =
+  AuthenticatedPortalOnboardingRouteImport.update({
+    id: '/portal/onboarding',
+    path: '/portal/onboarding',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const PayMockPaymentIdRoute = PayMockPaymentIdRouteImport.update({
   id: '/pay/mock/$paymentId',
   path: '/pay/mock/$paymentId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminProjectsIndexRoute =
+  AuthenticatedAdminProjectsIndexRouteImport.update({
+    id: '/admin/projects/',
+    path: '/admin/projects/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminProjectsProjectIdRoute =
+  AuthenticatedAdminProjectsProjectIdRouteImport.update({
+    id: '/admin/projects/$projectId',
+    path: '/admin/projects/$projectId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -50,58 +89,92 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
+  '/portal/onboarding': typeof AuthenticatedPortalOnboardingRoute
   '/pay/mock/$paymentId': typeof PayMockPaymentIdRoute
+  '/portal/': typeof AuthenticatedPortalIndexRoute
+  '/admin/projects/$projectId': typeof AuthenticatedAdminProjectsProjectIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
+  '/portal/onboarding': typeof AuthenticatedPortalOnboardingRoute
   '/pay/mock/$paymentId': typeof PayMockPaymentIdRoute
+  '/portal': typeof AuthenticatedPortalIndexRoute
+  '/admin/projects/$projectId': typeof AuthenticatedAdminProjectsProjectIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/admin/projects': typeof AuthenticatedAdminProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
+  '/_authenticated/portal/onboarding': typeof AuthenticatedPortalOnboardingRoute
   '/pay/mock/$paymentId': typeof PayMockPaymentIdRoute
+  '/_authenticated/portal/': typeof AuthenticatedPortalIndexRoute
+  '/_authenticated/admin/projects/$projectId': typeof AuthenticatedAdminProjectsProjectIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/_authenticated/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/build'
     | '/plan/$token'
     | '/q/$accessToken'
+    | '/portal/onboarding'
     | '/pay/mock/$paymentId'
+    | '/portal/'
+    | '/admin/projects/$projectId'
     | '/api/public/payments/webhook'
+    | '/admin/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/build'
     | '/plan/$token'
     | '/q/$accessToken'
+    | '/portal/onboarding'
     | '/pay/mock/$paymentId'
+    | '/portal'
+    | '/admin/projects/$projectId'
     | '/api/public/payments/webhook'
+    | '/admin/projects'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
+    | '/auth'
     | '/build'
     | '/plan/$token'
     | '/q/$accessToken'
+    | '/_authenticated/portal/onboarding'
     | '/pay/mock/$paymentId'
+    | '/_authenticated/portal/'
+    | '/_authenticated/admin/projects/$projectId'
     | '/api/public/payments/webhook'
+    | '/_authenticated/admin/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   BuildRoute: typeof BuildRoute
   PlanTokenRoute: typeof PlanTokenRoute
   QAccessTokenRoute: typeof QAccessTokenRoute
@@ -116,6 +189,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/build': {
@@ -139,12 +226,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QAccessTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/portal/': {
+      id: '/_authenticated/portal/'
+      path: '/portal'
+      fullPath: '/portal/'
+      preLoaderRoute: typeof AuthenticatedPortalIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/portal/onboarding': {
+      id: '/_authenticated/portal/onboarding'
+      path: '/portal/onboarding'
+      fullPath: '/portal/onboarding'
+      preLoaderRoute: typeof AuthenticatedPortalOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/pay/mock/$paymentId': {
       id: '/pay/mock/$paymentId'
       path: '/pay/mock/$paymentId'
       fullPath: '/pay/mock/$paymentId'
       preLoaderRoute: typeof PayMockPaymentIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/projects/': {
+      id: '/_authenticated/admin/projects/'
+      path: '/admin/projects'
+      fullPath: '/admin/projects/'
+      preLoaderRoute: typeof AuthenticatedAdminProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/projects/$projectId': {
+      id: '/_authenticated/admin/projects/$projectId'
+      path: '/admin/projects/$projectId'
+      fullPath: '/admin/projects/$projectId'
+      preLoaderRoute: typeof AuthenticatedAdminProjectsProjectIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
@@ -156,8 +271,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedPortalOnboardingRoute: typeof AuthenticatedPortalOnboardingRoute
+  AuthenticatedPortalIndexRoute: typeof AuthenticatedPortalIndexRoute
+  AuthenticatedAdminProjectsProjectIdRoute: typeof AuthenticatedAdminProjectsProjectIdRoute
+  AuthenticatedAdminProjectsIndexRoute: typeof AuthenticatedAdminProjectsIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedPortalOnboardingRoute: AuthenticatedPortalOnboardingRoute,
+  AuthenticatedPortalIndexRoute: AuthenticatedPortalIndexRoute,
+  AuthenticatedAdminProjectsProjectIdRoute:
+    AuthenticatedAdminProjectsProjectIdRoute,
+  AuthenticatedAdminProjectsIndexRoute: AuthenticatedAdminProjectsIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   BuildRoute: BuildRoute,
   PlanTokenRoute: PlanTokenRoute,
   QAccessTokenRoute: QAccessTokenRoute,
