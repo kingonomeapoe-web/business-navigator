@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_notifications: {
+        Row: {
+          body: string
+          created_at: string
+          customer_id: string
+          id: string
+          idempotency_key: string | null
+          kind: string
+          project_id: string
+          read_at: string | null
+          title: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          idempotency_key?: string | null
+          kind: string
+          project_id: string
+          read_at?: string | null
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          idempotency_key?: string | null
+          kind?: string
+          project_id?: string
+          read_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_notifications_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_notifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       component_prices: {
         Row: {
           component_id: string
@@ -316,6 +367,44 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_responses: {
+        Row: {
+          created_at: string
+          id: string
+          item_key: string
+          project_id: string
+          section_key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_key: string
+          project_id: string
+          section_key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_key?: string
+          project_id?: string
+          section_key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_responses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           component_slug: string
@@ -544,6 +633,112 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_assets: {
+        Row: {
+          category: string
+          filename: string
+          id: string
+          mime_type: string
+          project_id: string
+          size_bytes: number
+          storage_path: string
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          category?: string
+          filename: string
+          id?: string
+          mime_type: string
+          project_id: string
+          size_bytes?: number
+          storage_path: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          category?: string
+          filename?: string
+          id?: string
+          mime_type?: string
+          project_id?: string
+          size_bytes?: number
+          storage_path?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          note: string | null
+          project_id: string
+          to_status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          project_id: string
+          to_status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          project_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_status_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
@@ -552,6 +747,8 @@ export type Database = {
           name: string
           onboarding_completed_at: string | null
           order_id: string
+          readiness: number
+          ready_for_build_at: string | null
           status: string
           updated_at: string
         }
@@ -562,6 +759,8 @@ export type Database = {
           name: string
           onboarding_completed_at?: string | null
           order_id: string
+          readiness?: number
+          ready_for_build_at?: string | null
           status?: string
           updated_at?: string
         }
@@ -572,6 +771,8 @@ export type Database = {
           name?: string
           onboarding_completed_at?: string | null
           order_id?: string
+          readiness?: number
+          ready_for_build_at?: string | null
           status?: string
           updated_at?: string
         }
@@ -804,15 +1005,43 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      owns_project: { Args: { _project_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "staff" | "client"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -939,6 +1168,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "staff", "client"],
+    },
   },
 } as const
