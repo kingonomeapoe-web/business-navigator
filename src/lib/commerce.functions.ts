@@ -124,8 +124,8 @@ export const beginPayment = createServerFn({ method: "POST" })
  */
 export const completeMockPayment = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => mockPaymentSchema.parse(input))
-  .handler(async ({ data }): Promise<{ status: string }> => {
-    if (process.env["STRIPE_SECRET_KEY"]) return { status: "disabled" };
+  .handler(async ({ data }): Promise<{ status: string; accessToken: string | null }> => {
+    if (process.env["STRIPE_SECRET_KEY"]) return { status: "disabled", accessToken: null };
     const { handleProviderEvent } = await import("./commerce.server");
     const result = await handleProviderEvent("mock", {
       eventId: `mock_${data.paymentId}_${data.outcome}`,
@@ -137,5 +137,27 @@ export const completeMockPayment = createServerFn({ method: "POST" })
       currency: null,
       payload: { payment_id: data.paymentId, outcome: data.outcome },
     });
-    return { status: result.status };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: payment } = await supabaseAdmin
+      .from("payments")
+      .select("order_id")
+      .eq("id", data.paymentId)
+      .maybeSingle();
+    let accessToken: string | null = null;
+    if (payment) {
+      const { data: order } = await supabaseAdmin
+        .from("orders")
+        .select("quote_id")
+        .eq("id", payment.order_id)
+        .maybeSingle();
+      if (order) {
+        const { data: quote } = await supabaseAdmin
+          .from("quotes")
+          .select("access_token")
+          .eq("id", order.quote_id)
+          .maybeSingle();
+        accessToken = quote?.access_token ?? null;
+      }
+    }
+    return { status: result.status, accessToken };
   });
