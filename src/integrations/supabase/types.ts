@@ -65,33 +65,117 @@ export type Database = {
           },
         ]
       }
-      component_prices: {
+      component_dependencies: {
         Row: {
           component_id: string
           created_at: string
-          currency: string
           id: string
-          one_time: number
-          recurring_monthly: number
-          setup_fee: number
+          kind: string
+          related_component_id: string
         }
         Insert: {
           component_id: string
           created_at?: string
-          currency: string
           id?: string
-          one_time?: number
-          recurring_monthly?: number
-          setup_fee?: number
+          kind: string
+          related_component_id: string
         }
         Update: {
           component_id?: string
           created_at?: string
-          currency?: string
           id?: string
+          kind?: string
+          related_component_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "component_dependencies_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_dependencies_related_component_id_fkey"
+            columns: ["related_component_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      component_industries: {
+        Row: {
+          component_id: string
+          created_at: string
+          id: string
+          industry_id: string
+        }
+        Insert: {
+          component_id: string
+          created_at?: string
+          id?: string
+          industry_id: string
+        }
+        Update: {
+          component_id?: string
+          created_at?: string
+          id?: string
+          industry_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "component_industries_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_industries_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "industries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      component_prices: {
+        Row: {
+          active: boolean
+          component_id: string
+          created_at: string
+          currency: string
+          id: string
+          market_id: string | null
+          one_time: number
+          recurring_monthly: number
+          setup_fee: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          component_id: string
+          created_at?: string
+          currency: string
+          id?: string
+          market_id?: string | null
           one_time?: number
           recurring_monthly?: number
           setup_fee?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          component_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          market_id?: string | null
+          one_time?: number
+          recurring_monthly?: number
+          setup_fee?: number
+          updated_at?: string
         }
         Relationships: [
           {
@@ -99,6 +183,13 @@ export type Database = {
             columns: ["component_id"]
             isOneToOne: false
             referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_prices_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
             referencedColumns: ["id"]
           },
         ]
@@ -109,57 +200,84 @@ export type Database = {
           conflicts_with: string[]
           created_at: string
           depends_on: string[]
+          detailed_explanation: string
           display_order: number
+          featured: boolean
+          has_one_time: boolean
+          has_recurring: boolean
           icon: string
           id: string
+          image_url: string | null
           industry_tags: string[]
+          internal_notes: string
           is_active: boolean
           is_core: boolean
           name: string
           pillar: string
+          pricing_model: string
           priority: number
           recommendation_reason: string
           short_description: string
           slug: string
+          status: string
           updated_at: string
+          upsell_message: string
         }
         Insert: {
           client_explanation?: string
           conflicts_with?: string[]
           created_at?: string
           depends_on?: string[]
+          detailed_explanation?: string
           display_order?: number
+          featured?: boolean
+          has_one_time?: boolean
+          has_recurring?: boolean
           icon?: string
           id?: string
+          image_url?: string | null
           industry_tags?: string[]
+          internal_notes?: string
           is_active?: boolean
           is_core?: boolean
           name: string
           pillar: string
+          pricing_model?: string
           priority?: number
           recommendation_reason?: string
           short_description?: string
           slug: string
+          status?: string
           updated_at?: string
+          upsell_message?: string
         }
         Update: {
           client_explanation?: string
           conflicts_with?: string[]
           created_at?: string
           depends_on?: string[]
+          detailed_explanation?: string
           display_order?: number
+          featured?: boolean
+          has_one_time?: boolean
+          has_recurring?: boolean
           icon?: string
           id?: string
+          image_url?: string | null
           industry_tags?: string[]
+          internal_notes?: string
           is_active?: boolean
           is_core?: boolean
           name?: string
           pillar?: string
+          pricing_model?: string
           priority?: number
           recommendation_reason?: string
           short_description?: string
           slug?: string
+          status?: string
           updated_at?: string
+          upsell_message?: string
         }
         Relationships: []
       }
@@ -337,6 +455,30 @@ export type Database = {
           },
         ]
       }
+      industries: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       internal_notifications: {
         Row: {
           body: string
@@ -364,6 +506,39 @@ export type Database = {
           payload?: Json
           status?: string
           subject?: string
+        }
+        Relationships: []
+      }
+      markets: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          currency_code: string
+          display_order: number
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          currency_code: string
+          display_order?: number
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          currency_code?: string
+          display_order?: number
+          id?: string
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -629,6 +804,60 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_change_log: {
+        Row: {
+          changed_by: string | null
+          component_id: string
+          created_at: string
+          currency: string
+          field: string
+          id: string
+          market_id: string | null
+          new_value: number | null
+          note: string | null
+          previous_value: number | null
+        }
+        Insert: {
+          changed_by?: string | null
+          component_id: string
+          created_at?: string
+          currency: string
+          field: string
+          id?: string
+          market_id?: string | null
+          new_value?: number | null
+          note?: string | null
+          previous_value?: number | null
+        }
+        Update: {
+          changed_by?: string | null
+          component_id?: string
+          created_at?: string
+          currency?: string
+          field?: string
+          id?: string
+          market_id?: string | null
+          new_value?: number | null
+          note?: string | null
+          previous_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_change_log_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_change_log_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
             referencedColumns: ["id"]
           },
         ]
@@ -1038,10 +1267,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_catalogue_admin: { Args: { _user_id: string }; Returns: boolean }
       owns_project: { Args: { _project_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "staff" | "client"
+      app_role: "admin" | "staff" | "client" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1169,7 +1399,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "staff", "client"],
+      app_role: ["admin", "staff", "client", "super_admin"],
     },
   },
 } as const
