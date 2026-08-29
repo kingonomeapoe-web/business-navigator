@@ -27,6 +27,7 @@ function AdminProject() {
   const { data, isPending, error } = useQuery({
     queryKey: ["admin-project", projectId],
     queryFn: () => load({ data: { projectId } }),
+    retry: false,
   });
 
   if (error) {

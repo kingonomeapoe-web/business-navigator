@@ -206,3 +206,50 @@ North star: **paid deposits per 100 diagnostics started.**
 | Receipts | Payment succeeds and confirms on screen; a downloadable receipt/invoice document is not yet generated. |
 | Legal pages | Still open (B5) — required by the payment provider before going live. |
 | Pricing sign-off | Still open (B8). |
+
+---
+
+## 13. Phase 2 — Client Account + Onboarding Portal
+
+### What was implemented
+
+- **Client accounts** — Supabase Auth email/password, magic link and password reset at `/auth`. No account is required before payment; the paid quote page now links straight to account setup. On first sign-in the account is matched to the customer record created by payment (case-insensitive email, only unclaimed customers), and a profile row is created.
+- **Client dashboard** (`/portal`) — business name, project name, production readiness, next required action, project timeline across eight stages, purchased system summary, payment summary (paid, balance, monthly) and a link back to the order record.
+- **Onboarding engine** (`/portal/onboarding`) — requirements generated from the *purchased* components only, pre-filled from the diagnostic, grouped into six readiness categories: business identity, brand, content, media, digital access and feature setup. Conditional requirement sets exist for booking, SEO/search growth, AI assistant, e-commerce, CRM/lead handling, WhatsApp and social content.
+- **Progress model** — readiness is calculated from required *applicable* items, not raw field count, with an explicit outstanding-items checklist ("You're 58% ready for production. 3 items still needed.").
+- **Autosave** — edits are debounced and flushed on blur to the server; nothing is lost on refresh or navigation.
+- **Assets** — private uploads to the `project-assets` bucket under `projectId/category/…`, server-side registration with MIME, size (25MB), filename and path validation, per-asset delete, and short-lived signed URLs for viewing.
+- **Completion** — when every required item is complete, the client submits, the project moves to `ready_for_build`, timestamps are recorded, a client notification and an internal notification are raised, and the "You're ready" confirmation checklist is shown.
+- **Internal project brief** — generated deterministically from diagnostic session, classification, purchased components, accepted quote, onboarding responses and asset metadata; never cached stale.
+- **Admin project view** — `/admin/projects` and `/admin/projects/:projectId` (role-gated via `user_roles`) show the client, order, payment, status, readiness, selected system, every response, uploaded assets with signed links, and the generated brief.
+- **Client notifications** — onboarding started, onboarding complete and project status changed, written on payment provisioning and lifecycle transitions.
+
+### Database changes
+
+New tables: `profiles`, `user_roles` (with `app_role` enum), `onboarding_responses`, `project_assets`, `project_status_history`, `client_notifications`. New columns on `projects`: `readiness`, `ready_for_build_at`. New security-definer helpers: `has_role(uuid, app_role)` and `owns_project(uuid)`, used by RLS; execution revoked from anonymous users. RLS: every client-owned table is readable only by its owner (`owns_project` / `auth.uid()`), with admin read policies via `has_role`. All writes go through server functions using the service role after an explicit ownership check — defence in depth alongside RLS.
+
+### Storage
+
+Private bucket `project-assets` (25MB limit). Policies allow project owners to manage files under their own project prefix and admins to read all. Downloads always use signed URLs (5 minutes).
+
+### New routes
+
+`/auth`, `/portal`, `/portal/onboarding`, `/admin/projects`, `/admin/projects/:projectId`. The protected subtree is gated by `src/routes/_authenticated/route.tsx`.
+
+### New server functions (`src/lib/portal.functions.ts`)
+
+`activateAccountFn`, `getPortal`, `saveOnboarding`, `registerProjectAsset`, `removeProjectAsset`, `getAssetUrl`, `finishOnboarding`, `markNotificationRead`, `adminListProjects`, `adminGetProject`, `amIAdmin`. All are authenticated through `requireSupabaseAuth` and validated with Zod.
+
+### Environment variables
+
+None new.
+
+### Tested
+
+Account creation and sign-in, account-to-customer linking, dashboard rendering for the Brighton dental order (`SPXO-6A92CE9E`, £1,096 paid, £1,096 balance, £24/month), component-driven requirement generation, autosave persistence across reload, readiness recalculation (0% → 6% → 13%), private asset upload and registration, and a non-admin being refused the admin views. Phase 1 commerce behaviour is unchanged.
+
+### What remains for Phase 3
+
+- Email confirmation currently depends on Supabase's default mail; once the Satphonix sending domain is verified, confirmation and magic-link delivery should be moved onto it. Google OAuth is not yet enabled.
+- Admin write tools (status transitions, catalogue and price management, quote overrides) — this phase is read-only for admins.
+- Client notification email fan-out, expansion purchases, receipts/invoices, and the delivery-side project management surface.
