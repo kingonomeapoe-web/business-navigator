@@ -20,6 +20,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPortalIndexRouteImport } from './routes/_authenticated/portal/index'
 import { Route as AuthenticatedPortalOnboardingRouteImport } from './routes/_authenticated/portal/onboarding'
 import { Route as PayMockPaymentIdRouteImport } from './routes/pay.mock.$paymentId'
+import { Route as AuthenticatedAdminComponentsIndexRouteImport } from './routes/_authenticated/admin/components/index'
 import { Route as AuthenticatedAdminProjectsIndexRouteImport } from './routes/_authenticated/admin/projects/index'
 import { Route as AuthenticatedAdminProjectsProjectIdRouteImport } from './routes/_authenticated/admin/projects/$projectId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -80,6 +81,12 @@ const PayMockPaymentIdRoute = PayMockPaymentIdRouteImport.update({
   path: '/pay/mock/$paymentId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminComponentsIndexRoute =
+  AuthenticatedAdminComponentsIndexRouteImport.update({
+    id: '/components/',
+    path: '/components/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminProjectsIndexRoute =
   AuthenticatedAdminProjectsIndexRouteImport.update({
     id: '/projects/',
@@ -112,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/portal/': typeof AuthenticatedPortalIndexRoute
   '/admin/projects/$projectId': typeof AuthenticatedAdminProjectsProjectIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/admin/components/': typeof AuthenticatedAdminComponentsIndexRoute
   '/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/portal': typeof AuthenticatedPortalIndexRoute
   '/admin/projects/$projectId': typeof AuthenticatedAdminProjectsProjectIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/admin/components': typeof AuthenticatedAdminComponentsIndexRoute
   '/admin/projects': typeof AuthenticatedAdminProjectsIndexRoute
 }
 export interface FileRoutesById {
@@ -143,6 +152,7 @@ export interface FileRoutesById {
   '/_authenticated/portal/': typeof AuthenticatedPortalIndexRoute
   '/_authenticated/admin/projects/$projectId': typeof AuthenticatedAdminProjectsProjectIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/_authenticated/admin/components/': typeof AuthenticatedAdminComponentsIndexRoute
   '/_authenticated/admin/projects/': typeof AuthenticatedAdminProjectsIndexRoute
 }
 export interface FileRouteTypes {
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/portal/'
     | '/admin/projects/$projectId'
     | '/api/public/payments/webhook'
+    | '/admin/components/'
     | '/admin/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/admin/projects/$projectId'
     | '/api/public/payments/webhook'
+    | '/admin/components'
     | '/admin/projects'
   id:
     | '__root__'
@@ -190,6 +202,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal/'
     | '/_authenticated/admin/projects/$projectId'
     | '/api/public/payments/webhook'
+    | '/_authenticated/admin/components/'
     | '/_authenticated/admin/projects/'
   fileRoutesById: FileRoutesById
 }
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PayMockPaymentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/components/': {
+      id: '/_authenticated/admin/components/'
+      path: '/components'
+      fullPath: '/admin/components/'
+      preLoaderRoute: typeof AuthenticatedAdminComponentsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/projects/': {
       id: '/_authenticated/admin/projects/'
       path: '/projects'
@@ -310,6 +330,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminProjectsProjectIdRoute: typeof AuthenticatedAdminProjectsProjectIdRoute
+  AuthenticatedAdminComponentsIndexRoute: typeof AuthenticatedAdminComponentsIndexRoute
   AuthenticatedAdminProjectsIndexRoute: typeof AuthenticatedAdminProjectsIndexRoute
 }
 
@@ -318,6 +339,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminProjectsProjectIdRoute:
       AuthenticatedAdminProjectsProjectIdRoute,
+    AuthenticatedAdminComponentsIndexRoute:
+      AuthenticatedAdminComponentsIndexRoute,
     AuthenticatedAdminProjectsIndexRoute: AuthenticatedAdminProjectsIndexRoute,
   }
 
