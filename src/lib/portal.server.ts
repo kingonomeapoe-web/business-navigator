@@ -628,9 +628,9 @@ export async function isAdmin(userId: string): Promise<boolean> {
     .from("user_roles")
     .select("role")
     .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  return Boolean(data);
+    .in("role", ["admin", "super_admin"])
+    .limit(1);
+  return Boolean(data && data.length > 0);
 }
 
 export type AdminProjectView = {
