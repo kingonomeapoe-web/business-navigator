@@ -81,30 +81,33 @@ function ComponentEditor() {
 
   useEffect(() => {
     if (!detail) return;
-    const c = detail.component as Record<string, any>;
+    const c = detail.component;
     setForm({
-      id: c["id"],
-      name: c["name"] ?? "",
-      slug: c["slug"] ?? "",
-      pillar: c["pillar"] ?? "look",
-      status: c["status"] ?? "active",
-      short_description: c["short_description"] ?? "",
-      client_explanation: c["client_explanation"] ?? "",
-      detailed_explanation: c["detailed_explanation"] ?? "",
-      internal_notes: c["internal_notes"] ?? "",
-      icon: c["icon"] ?? "sparkles",
-      image_url: c["image_url"] ?? "",
-      display_order: c["display_order"] ?? 100,
-      featured: Boolean(c["featured"]),
-      is_core: Boolean(c["is_core"]),
-      recommendation_reason: c["recommendation_reason"] ?? "",
-      upsell_message: c["upsell_message"] ?? "",
-      priority: c["priority"] ?? 50,
-      pricing_model: c["pricing_model"] ?? "fixed",
-      has_one_time: Boolean(c["has_one_time"]),
-      has_recurring: Boolean(c["has_recurring"]),
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      pillar: c.pillar as ComponentInput["pillar"],
+      status: c.status as ComponentInput["status"],
+      short_description: c.short_description,
+      client_explanation: c.client_explanation,
+      detailed_explanation: c.detailed_explanation,
+      internal_notes: c.internal_notes,
+      icon: c.icon,
+      image_url: c.image_url,
+      display_order: c.display_order,
+      featured: c.featured,
+      is_core: c.is_core,
+      recommendation_reason: c.recommendation_reason,
+      upsell_message: c.upsell_message,
+      priority: c.priority,
+      pricing_model: c.pricing_model as ComponentInput["pricing_model"],
+      has_one_time: c.has_one_time,
+      has_recurring: c.has_recurring,
       industry_ids: detail.industryIds,
-      dependencies: detail.dependencies.map((d) => ({ related_component_id: d.related_component_id, kind: d.kind as never })),
+      dependencies: detail.dependencies.map((d) => ({
+        related_component_id: d.related_component_id,
+        kind: d.kind as ComponentInput["dependencies"][number]["kind"],
+      })),
     });
   }, [detail]);
 
