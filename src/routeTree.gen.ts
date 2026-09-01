@@ -17,7 +17,14 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as PlanTokenRouteImport } from './routes/plan.$token'
 import { Route as QAccessTokenRouteImport } from './routes/q.$accessToken'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin/clients'
+import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin/content'
+import { Route as AuthenticatedAdminIndustriesRouteImport } from './routes/_authenticated/admin/industries'
 import { Route as AuthenticatedAdminPricingRouteImport } from './routes/_authenticated/admin/pricing'
+import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin/questions'
+import { Route as AuthenticatedAdminQuotesRouteImport } from './routes/_authenticated/admin/quotes'
+import { Route as AuthenticatedAdminRulesRouteImport } from './routes/_authenticated/admin/rules'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedPortalIndexRouteImport } from './routes/_authenticated/portal/index'
 import { Route as AuthenticatedPortalOnboardingRouteImport } from './routes/_authenticated/portal/onboarding'
 import { Route as PayMockPaymentIdRouteImport } from './routes/pay.mock.$paymentId'
@@ -66,10 +73,51 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminClientsRoute =
+  AuthenticatedAdminClientsRouteImport.update({
+    id: '/clients',
+    path: '/clients',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminContentRoute =
+  AuthenticatedAdminContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminIndustriesRoute =
+  AuthenticatedAdminIndustriesRouteImport.update({
+    id: '/industries',
+    path: '/industries',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminPricingRoute =
   AuthenticatedAdminPricingRouteImport.update({
     id: '/pricing',
     path: '/pricing',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminQuestionsRoute =
+  AuthenticatedAdminQuestionsRouteImport.update({
+    id: '/questions',
+    path: '/questions',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminQuotesRoute =
+  AuthenticatedAdminQuotesRouteImport.update({
+    id: '/quotes',
+    path: '/quotes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRulesRoute = AuthenticatedAdminRulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedPortalIndexRoute =
@@ -127,7 +175,14 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/content': typeof AuthenticatedAdminContentRoute
+  '/admin/industries': typeof AuthenticatedAdminIndustriesRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
+  '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
+  '/admin/quotes': typeof AuthenticatedAdminQuotesRoute
+  '/admin/rules': typeof AuthenticatedAdminRulesRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/portal/onboarding': typeof AuthenticatedPortalOnboardingRoute
   '/pay/mock/$paymentId': typeof PayMockPaymentIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -144,7 +199,14 @@ export interface FileRoutesByTo {
   '/build': typeof BuildRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/content': typeof AuthenticatedAdminContentRoute
+  '/admin/industries': typeof AuthenticatedAdminIndustriesRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
+  '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
+  '/admin/quotes': typeof AuthenticatedAdminQuotesRoute
+  '/admin/rules': typeof AuthenticatedAdminRulesRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/portal/onboarding': typeof AuthenticatedPortalOnboardingRoute
   '/pay/mock/$paymentId': typeof PayMockPaymentIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -164,7 +226,14 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
+  '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
+  '/_authenticated/admin/industries': typeof AuthenticatedAdminIndustriesRoute
   '/_authenticated/admin/pricing': typeof AuthenticatedAdminPricingRoute
+  '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
+  '/_authenticated/admin/quotes': typeof AuthenticatedAdminQuotesRoute
+  '/_authenticated/admin/rules': typeof AuthenticatedAdminRulesRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/portal/onboarding': typeof AuthenticatedPortalOnboardingRoute
   '/pay/mock/$paymentId': typeof PayMockPaymentIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -184,7 +253,14 @@ export interface FileRouteTypes {
     | '/admin'
     | '/plan/$token'
     | '/q/$accessToken'
+    | '/admin/clients'
+    | '/admin/content'
+    | '/admin/industries'
     | '/admin/pricing'
+    | '/admin/questions'
+    | '/admin/quotes'
+    | '/admin/rules'
+    | '/admin/settings'
     | '/portal/onboarding'
     | '/pay/mock/$paymentId'
     | '/admin/'
@@ -201,7 +277,14 @@ export interface FileRouteTypes {
     | '/build'
     | '/plan/$token'
     | '/q/$accessToken'
+    | '/admin/clients'
+    | '/admin/content'
+    | '/admin/industries'
     | '/admin/pricing'
+    | '/admin/questions'
+    | '/admin/quotes'
+    | '/admin/rules'
+    | '/admin/settings'
     | '/portal/onboarding'
     | '/pay/mock/$paymentId'
     | '/admin'
@@ -220,7 +303,14 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/plan/$token'
     | '/q/$accessToken'
+    | '/_authenticated/admin/clients'
+    | '/_authenticated/admin/content'
+    | '/_authenticated/admin/industries'
     | '/_authenticated/admin/pricing'
+    | '/_authenticated/admin/questions'
+    | '/_authenticated/admin/quotes'
+    | '/_authenticated/admin/rules'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/portal/onboarding'
     | '/pay/mock/$paymentId'
     | '/_authenticated/admin/'
@@ -301,11 +391,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/clients': {
+      id: '/_authenticated/admin/clients'
+      path: '/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AuthenticatedAdminClientsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/content': {
+      id: '/_authenticated/admin/content'
+      path: '/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AuthenticatedAdminContentRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/industries': {
+      id: '/_authenticated/admin/industries'
+      path: '/industries'
+      fullPath: '/admin/industries'
+      preLoaderRoute: typeof AuthenticatedAdminIndustriesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/pricing': {
       id: '/_authenticated/admin/pricing'
       path: '/pricing'
       fullPath: '/admin/pricing'
       preLoaderRoute: typeof AuthenticatedAdminPricingRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/questions': {
+      id: '/_authenticated/admin/questions'
+      path: '/questions'
+      fullPath: '/admin/questions'
+      preLoaderRoute: typeof AuthenticatedAdminQuestionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/quotes': {
+      id: '/_authenticated/admin/quotes'
+      path: '/quotes'
+      fullPath: '/admin/quotes'
+      preLoaderRoute: typeof AuthenticatedAdminQuotesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/rules': {
+      id: '/_authenticated/admin/rules'
+      path: '/rules'
+      fullPath: '/admin/rules'
+      preLoaderRoute: typeof AuthenticatedAdminRulesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/portal/': {
@@ -368,7 +507,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminClientsRoute: typeof AuthenticatedAdminClientsRoute
+  AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
+  AuthenticatedAdminIndustriesRoute: typeof AuthenticatedAdminIndustriesRoute
   AuthenticatedAdminPricingRoute: typeof AuthenticatedAdminPricingRoute
+  AuthenticatedAdminQuestionsRoute: typeof AuthenticatedAdminQuestionsRoute
+  AuthenticatedAdminQuotesRoute: typeof AuthenticatedAdminQuotesRoute
+  AuthenticatedAdminRulesRoute: typeof AuthenticatedAdminRulesRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminComponentsIdRoute: typeof AuthenticatedAdminComponentsIdRoute
   AuthenticatedAdminProjectsProjectIdRoute: typeof AuthenticatedAdminProjectsProjectIdRoute
@@ -378,7 +524,14 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminClientsRoute: AuthenticatedAdminClientsRoute,
+    AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
+    AuthenticatedAdminIndustriesRoute: AuthenticatedAdminIndustriesRoute,
     AuthenticatedAdminPricingRoute: AuthenticatedAdminPricingRoute,
+    AuthenticatedAdminQuestionsRoute: AuthenticatedAdminQuestionsRoute,
+    AuthenticatedAdminQuotesRoute: AuthenticatedAdminQuotesRoute,
+    AuthenticatedAdminRulesRoute: AuthenticatedAdminRulesRoute,
+    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminComponentsIdRoute: AuthenticatedAdminComponentsIdRoute,
     AuthenticatedAdminProjectsProjectIdRoute:
