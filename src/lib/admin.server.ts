@@ -136,8 +136,31 @@ async function usedSlugs(): Promise<Set<string>> {
   return new Set((data ?? []).map((r) => r.component_slug));
 }
 
+export type AdminComponentRecord = {
+  id: string;
+  name: string;
+  slug: string;
+  pillar: string;
+  status: string;
+  short_description: string;
+  client_explanation: string;
+  detailed_explanation: string;
+  internal_notes: string;
+  icon: string;
+  image_url: string;
+  display_order: number;
+  featured: boolean;
+  is_core: boolean;
+  recommendation_reason: string;
+  upsell_message: string;
+  priority: number;
+  pricing_model: string;
+  has_one_time: boolean;
+  has_recurring: boolean;
+};
+
 export type AdminComponentDetail = {
-  component: Record<string, unknown>;
+  component: AdminComponentRecord;
   prices: { currency: string; one_time: number; recurring_monthly: number; setup_fee: number; active: boolean }[];
   dependencies: { related_component_id: string; kind: string }[];
   industryIds: string[];
