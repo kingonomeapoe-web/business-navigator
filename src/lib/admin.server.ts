@@ -136,8 +136,31 @@ async function usedSlugs(): Promise<Set<string>> {
   return new Set((data ?? []).map((r) => r.component_slug));
 }
 
+export type AdminComponentRecord = {
+  id: string;
+  name: string;
+  slug: string;
+  pillar: string;
+  status: string;
+  short_description: string;
+  client_explanation: string;
+  detailed_explanation: string;
+  internal_notes: string;
+  icon: string;
+  image_url: string;
+  display_order: number;
+  featured: boolean;
+  is_core: boolean;
+  recommendation_reason: string;
+  upsell_message: string;
+  priority: number;
+  pricing_model: string;
+  has_one_time: boolean;
+  has_recurring: boolean;
+};
+
 export type AdminComponentDetail = {
-  component: Record<string, unknown>;
+  component: AdminComponentRecord;
   prices: { currency: string; one_time: number; recurring_monthly: number; setup_fee: number; active: boolean }[];
   dependencies: { related_component_id: string; kind: string }[];
   industryIds: string[];
@@ -156,7 +179,28 @@ export async function getComponent(id: string): Promise<AdminComponentDetail | n
   ]);
 
   return {
-    component: component as unknown as Record<string, unknown>,
+    component: {
+      id: component.id,
+      name: component.name,
+      slug: component.slug,
+      pillar: component.pillar,
+      status: component.status,
+      short_description: component.short_description ?? "",
+      client_explanation: component.client_explanation ?? "",
+      detailed_explanation: component.detailed_explanation ?? "",
+      internal_notes: component.internal_notes ?? "",
+      icon: component.icon ?? "sparkles",
+      image_url: component.image_url ?? "",
+      display_order: component.display_order,
+      featured: component.featured,
+      is_core: component.is_core,
+      recommendation_reason: component.recommendation_reason ?? "",
+      upsell_message: component.upsell_message ?? "",
+      priority: component.priority,
+      pricing_model: component.pricing_model,
+      has_one_time: component.has_one_time,
+      has_recurring: component.has_recurring,
+    },
     prices: (prices ?? []).map((p) => ({
       currency: p.currency,
       one_time: Number(p.one_time),
