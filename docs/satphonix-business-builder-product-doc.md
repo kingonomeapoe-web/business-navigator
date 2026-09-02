@@ -253,3 +253,38 @@ Account creation and sign-in, account-to-customer linking, dashboard rendering f
 - Email confirmation currently depends on Supabase's default mail; once the Satphonix sending domain is verified, confirmation and magic-link delivery should be moved onto it. Google OAuth is not yet enabled.
 - Admin write tools (status transitions, catalogue and price management, quote overrides) — this phase is read-only for admins.
 - Client notification email fan-out, expansion purchases, receipts/invoices, and the delivery-side project management surface.
+
+---
+
+## 14. Phase 3A + 3B — Admin Foundation, Component & Pricing Manager
+
+### What was implemented
+
+- **Admin control centre** — a role-gated `/admin` application with its own shell: persistent desktop sidebar, collapsible mobile navigation, breadcrumbs, signed-in identity and role, and sign-out. Navigation covers Dashboard, Components, Pricing, Projects (existing read-only views), plus Clients, Quotes, Content, Questions, Rules, Industries and Settings as explicit "coming next phase" states.
+- **Roles** — the `app_role` enum now includes `super_admin` alongside `admin`, `staff` and `client`. Roles live only in `user_roles`. Authorization is enforced in three places: a client-side route gate, `requireAdmin` inside every privileged server function, and RLS policies using the `is_catalogue_admin` security-definer helper. `staff` and `client` cannot read or write catalogue, pricing or audit data.
+- **Admin dashboard** (`/admin`) — real counts for active/draft/archived components, markets and currencies, active quotes, paid orders, active projects, and the most recent diagnostic leads.
+- **Component catalogue manager** (`/admin/components`) — searchable, filterable by pillar and status, showing one-time and recurring availability and last update.
+- **Component editor** (`/admin/components/new`, `/admin/components/:id`) — identity (name, slug, pillar, short description, client explanation, detailed explanation, internal notes), presentation (icon, image, display order, featured, core), recommendation (reason, upsell message, priority), commercial flags (has one-time, has recurring, pricing model), relationships (requires / conflicts / related) and industry relevance, with a live client-facing preview panel showing exactly what a buyer would see.
+- **Lifecycle** — draft, active, archived. A component that already appears in `order_items` can never be hard-deleted; it is archived instead. `status` and the legacy `is_active` flag stay in sync via a trigger so the public funnel is unaffected.
+- **Pricing manager** (`/admin/pricing`) — a component × currency matrix for USD, GBP, NGN and EUR, editing one-time, recurring monthly and setup fee plus an active flag, with an optional note per change.
+- **Pricing audit trail** — every changed field is written to `pricing_change_log` with component, currency, previous value, new value, who changed it and when; the log is shown beneath the matrix.
+- **Dependencies** — relational `component_dependencies` with `requires`, `conflicts` and `related`. Circular `requires` chains are rejected on save. Legacy `depends_on`, `conflicts_with` and `industry_tags` arrays are mirrored on write so `src/lib/recommend.ts` continues to work unchanged.
+- **Historical integrity** — accepted quotes, quote versions, order items and project scope are JSON snapshots and are never re-read from the catalogue. Editing copy or price affects only new plans and unaccepted quotes.
+
+### Database changes
+
+Extended, not duplicated: `components` gained `status`, `detailed_explanation`, `internal_notes`, `image_url`, `featured`, `upsell_message`, `pricing_model`, `has_one_time`, `has_recurring`. `component_prices` gained `market_id`, `active`, `setup_fee` validation and `updated_at`, with a partial unique index on active `(component_id, currency)`. New tables: `markets` (seeded US/USD, UK/GBP, Nigeria/NGN, Eurozone/EUR), `industries`, `component_industries`, `component_dependencies`, `pricing_change_log`. New helper `is_catalogue_admin(uuid)`; execution revoked from PUBLIC and anonymous users. Indexes added for slug, pillar, status, component+market, dependencies, audit lookups and role membership.
+
+### New code
+
+`src/lib/admin-schemas.ts` (Zod validation: pillars, statuses, pricing models, component input, price input, audit queries — negative prices, malformed slugs and invalid enums are rejected server-side), `src/lib/admin.server.ts` (role resolution, dashboard stats, component CRUD with cycle detection and archive-on-history, market/industry reads, pricing matrix, audited price upserts), `src/lib/admin.functions.ts` (authenticated server functions), `src/components/admin-shell.tsx`, and the routes under `src/routes/_authenticated/admin/`.
+
+### Tested
+
+Admin sign-in as `super_admin`; dashboard rendering with live counts (27 active components, 4 markets, 2 active quotes, 2 paid orders); component list search and filters; the pricing matrix across all four currencies; a live GBP price change on SEO Foundation (£320 → £333) which wrote a `pricing_change_log` entry with author and note while all three historical quotes containing that component kept their agreed £320; the change was then reverted through an audited entry. Typecheck and production build pass; the public funnel, portal and commerce flows are unchanged.
+
+### Remaining
+
+- Clients, Quotes, Content, Questions, Rules, Industries and Settings admin modules are placeholders.
+- Bulk inline editing in the matrix is per-cell (modal) rather than free inline typing, to keep validation and auditing intact.
+- The security linter still reports the seven intentional deny-all tables and three signed-in security-definer helper warnings inherited from earlier phases.
