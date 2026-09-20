@@ -17,7 +17,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: "Projects", to: "/admin/projects", ready: true },
   { label: "Clients", to: "/admin/clients", ready: false },
   { label: "Quotes", to: "/admin/quotes", ready: false },
-  { label: "Content", to: "/admin/content", ready: false },
+  { label: "Content", to: "/admin/content", ready: true },
   { label: "Questions", to: "/admin/questions", ready: false },
   { label: "Rules", to: "/admin/rules", ready: false },
   { label: "Industries", to: "/admin/industries", ready: false },
