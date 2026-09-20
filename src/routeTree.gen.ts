@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BuildRouteImport } from './routes/build'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as LegalSlugRouteImport } from './routes/legal.$slug'
 import { Route as PlanTokenRouteImport } from './routes/plan.$token'
 import { Route as QAccessTokenRouteImport } from './routes/q.$accessToken'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
@@ -57,6 +58,11 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const LegalSlugRoute = LegalSlugRouteImport.update({
+  id: '/legal/$slug',
+  path: '/legal/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlanTokenRoute = PlanTokenRouteImport.update({
   id: '/plan/$token',
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/build': typeof BuildRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/legal/$slug': typeof LegalSlugRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/build': typeof BuildRoute
+  '/legal/$slug': typeof LegalSlugRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/build': typeof BuildRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/legal/$slug': typeof LegalSlugRoute
   '/plan/$token': typeof PlanTokenRoute
   '/q/$accessToken': typeof QAccessTokenRoute
   '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/build'
     | '/admin'
+    | '/legal/$slug'
     | '/plan/$token'
     | '/q/$accessToken'
     | '/admin/clients'
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/build'
+    | '/legal/$slug'
     | '/plan/$token'
     | '/q/$accessToken'
     | '/admin/clients'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/build'
     | '/_authenticated/admin'
+    | '/legal/$slug'
     | '/plan/$token'
     | '/q/$accessToken'
     | '/_authenticated/admin/clients'
@@ -327,6 +339,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   BuildRoute: typeof BuildRoute
+  LegalSlugRoute: typeof LegalSlugRoute
   PlanTokenRoute: typeof PlanTokenRoute
   QAccessTokenRoute: typeof QAccessTokenRoute
   PayMockPaymentIdRoute: typeof PayMockPaymentIdRoute
@@ -369,6 +382,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/legal/$slug': {
+      id: '/legal/$slug'
+      path: '/legal/$slug'
+      fullPath: '/legal/$slug'
+      preLoaderRoute: typeof LegalSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/plan/$token': {
       id: '/plan/$token'
@@ -566,6 +586,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   BuildRoute: BuildRoute,
+  LegalSlugRoute: LegalSlugRoute,
   PlanTokenRoute: PlanTokenRoute,
   QAccessTokenRoute: QAccessTokenRoute,
   PayMockPaymentIdRoute: PayMockPaymentIdRoute,

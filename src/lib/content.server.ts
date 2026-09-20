@@ -305,7 +305,7 @@ async function upsert(entity: Entity, id: string | undefined, record: Record<str
     if (!before) throw new Error("That record no longer exists.");
   }
 
-  const payload = { ...record, updated_by: userId, ...(id ? {} : { created_by: userId }) };
+  const payload = { ...record, updated_by: userId, ...(id ? {} : { created_by: userId }) } as never;
   let recordId = id;
   if (id) {
     const { error } = await supabase.from(entity).update(payload).eq("id", id);
@@ -424,7 +424,7 @@ export async function setContentStatus(entity: Entity, id: string, status: "draf
   if (!before) throw new Error("That record no longer exists.");
   const patch: Record<string, unknown> = { status, updated_by: userId };
   if (entity === "legal_documents") patch["published_at"] = status === "published" ? new Date().toISOString() : null;
-  const { error } = await supabase.from(entity).update(patch).eq("id", id);
+  const { error } = await supabase.from(entity).update(patch as never).eq("id", id);
   if (error) throw new Error(error.message);
   await writeLog(entity, id, String((before as Record<string, unknown>)["name"] ?? ""), [
     { field: "status", previous: String((before as Record<string, unknown>)["status"]), next: status },
@@ -446,7 +446,7 @@ export async function deleteContent(entity: Entity, id: string, userId: string) 
 export async function reorderContent(entity: "content_blocks" | "faqs" | "testimonials", ids: string[], userId: string) {
   const supabase = await admin();
   for (let index = 0; index < ids.length; index += 1) {
-    await supabase.from(entity).update({ display_order: index * 10, updated_by: userId }).eq("id", ids[index]!);
+    await supabase.from(entity).update({ display_order: index * 10, updated_by: userId } as never).eq("id", ids[index]!);
   }
   return { ok: true as const };
 }
