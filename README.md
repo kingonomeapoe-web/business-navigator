@@ -173,3 +173,7 @@ npm run dev
 ## Documentation
 
 - [Satphonix Business Builder — Product Document](docs/satphonix-business-builder-product-doc.md): current state, launch blockers, must haves, and good-to-haves.
+
+## Phase 3C — Content CMS (done)
+
+Admins can edit homepage wording, FAQs, testimonials, SEO settings and legal pages at `/admin/content`, with draft/publish and a change history. Published content appears on the site; anything missing falls back to the built-in wording. See section 15 of the product document.

@@ -288,3 +288,15 @@ Admin sign-in as `super_admin`; dashboard rendering with live counts (27 active 
 - Clients, Quotes, Content, Questions, Rules, Industries and Settings admin modules are placeholders.
 - Bulk inline editing in the matrix is per-cell (modal) rather than free inline typing, to keep validation and auditing intact.
 - The security linter still reports the seven intentional deny-all tables and three signed-in security-definer helper warnings inherited from earlier phases.
+
+## 15. Phase 3C — Content CMS
+
+**Built:** `/admin/content` replaces the placeholder with a tabbed Content Control Centre: Overview (counts, recent changes), Site and Funnel wording, FAQs, Testimonials, SEO, Legal (terms/privacy/refunds) and a general content-block list. Every item supports save as draft, publish, unpublish, ordering and field-level change history.
+
+**Database:** `content_blocks`, `faqs`, `testimonials`, `seo_pages`, `legal_documents`, `content_change_log`. Visitors can read only published rows; only admins/super admins can read drafts or write (checked on the server and by database rules).
+
+**Public use:** the homepage reads published wording, FAQs and testimonials; `/legal/$slug` shows published legal documents. If content is missing, unpublished or the backend fails, the site falls back to the original built-in wording, so pages never break.
+
+**Out of scope by design:** pricing, recommendation rules, diagnostic logic, payments and portal behaviour are not editable as content.
+
+**Remaining:** wire more diagnostic-step wording and per-page SEO records into page metadata; legal text must be approved by a lawyer before publishing.
