@@ -15,7 +15,7 @@ export function leaves(c: Condition): Exclude<Condition, { kind: "group" }>[] {
 }
 
 export function validateRule(
-  rule: Pick<RuleInput, "conditions" | "actions" | "priority" | "key"> & { id?: string },
+  rule: Pick<RuleInput, "conditions" | "actions" | "priority" | "key"> & { id?: string | undefined },
   ws: WS,
 ): { errors: string[]; warnings: string[] } {
   const errors: string[] = [];

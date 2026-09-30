@@ -42,7 +42,7 @@ export type ConditionGroup = { kind: "group"; mode: "all" | "any"; children: Con
 export type Condition = LeafCondition | ConditionGroup;
 
 export const MAX_DEPTH = 3;
-export const conditionSchema: z.ZodType<Condition> = z.lazy(() =>
+export const conditionSchema: z.ZodType<Condition, z.ZodTypeDef, unknown> = z.lazy(() =>
   z.union([leafSchema, z.object({ kind: z.literal("group"), mode: z.enum(["all", "any"]), children: z.array(conditionSchema).max(25) })]),
 );
 
@@ -124,7 +124,7 @@ export function evaluateLeaf(c: LeafCondition, p: DiagnosticProfile): boolean {
   }
 }
 
-export type ConditionTrace = { label: string; matched: boolean; children?: ConditionTrace[] };
+export type ConditionTrace = { label: string; matched: boolean; children?: ConditionTrace[] | undefined };
 
 export function evaluateCondition(c: Condition, p: DiagnosticProfile, depth = 0): ConditionTrace {
   if (c.kind === "group") {
