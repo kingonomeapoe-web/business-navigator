@@ -528,6 +528,7 @@ export type Database = {
           goals: string[]
           id: string
           marketing_opt_in: boolean
+          recommendation_trace: Json | null
           region: string | null
           selected_components: string[]
           service_area: string | null
@@ -552,6 +553,7 @@ export type Database = {
           goals?: string[]
           id?: string
           marketing_opt_in?: boolean
+          recommendation_trace?: Json | null
           region?: string | null
           selected_components?: string[]
           service_area?: string | null
@@ -576,6 +578,7 @@ export type Database = {
           goals?: string[]
           id?: string
           marketing_opt_in?: boolean
+          recommendation_trace?: Json | null
           region?: string | null
           selected_components?: string[]
           service_area?: string | null
@@ -1482,6 +1485,146 @@ export type Database = {
           id?: string
           subject?: string
           window_start?: string
+        }
+        Relationships: []
+      }
+      recommendation_rule_versions: {
+        Row: {
+          actions: Json
+          activated_by: string | null
+          conditions: Json
+          created_at: string
+          id: string
+          key: string
+          name: string
+          priority: number
+          rule_id: string
+          version: number
+        }
+        Insert: {
+          actions: Json
+          activated_by?: string | null
+          conditions: Json
+          created_at?: string
+          id?: string
+          key: string
+          name: string
+          priority: number
+          rule_id: string
+          version: number
+        }
+        Update: {
+          actions?: Json
+          activated_by?: string | null
+          conditions?: Json
+          created_at?: string
+          id?: string
+          key?: string
+          name?: string
+          priority?: number
+          rule_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendation_rule_versions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "recommendation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recommendation_rules: {
+        Row: {
+          actions: Json
+          activated_at: string | null
+          activated_by: string | null
+          archived_at: string | null
+          archived_by: string | null
+          conditions: Json
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          internal_notes: string
+          key: string
+          name: string
+          priority: number
+          status: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          actions?: Json
+          activated_at?: string | null
+          activated_by?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          internal_notes?: string
+          key: string
+          name: string
+          priority?: number
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          actions?: Json
+          activated_at?: string | null
+          activated_by?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          internal_notes?: string
+          key?: string
+          name?: string
+          priority?: number
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      rule_change_log: {
+        Row: {
+          action: string
+          changed_by: string | null
+          created_at: string
+          detail: string | null
+          id: string
+          rule_id: string | null
+          rule_key: string
+        }
+        Insert: {
+          action: string
+          changed_by?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          rule_id?: string | null
+          rule_key: string
+        }
+        Update: {
+          action?: string
+          changed_by?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          rule_id?: string | null
+          rule_key?: string
         }
         Relationships: []
       }
