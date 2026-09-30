@@ -135,7 +135,7 @@ const patchSchema = z.object({
     service_area: z.string().trim().max(200).optional(),
     email: z.string().trim().email().max(200).optional(),
     goals: z.array(z.string().max(60)).max(20).optional(),
-    answers: z.record(z.array(z.string().max(60)).max(20)).optional(),
+    answers: z.record(z.string().max(80), z.array(z.string().max(2000)).max(30)).optional(),
     selected_components: z.array(z.string().max(80)).max(60).optional(),
     step: z.string().max(40).optional(),
   }),
