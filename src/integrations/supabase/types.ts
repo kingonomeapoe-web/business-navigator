@@ -404,6 +404,113 @@ export type Database = {
         }
         Relationships: []
       }
+      diagnostic_question_options: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          internal_notes: string
+          key: string
+          label: string
+          question_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          internal_notes?: string
+          key: string
+          label: string
+          question_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          internal_notes?: string
+          key?: string
+          label?: string
+          question_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnostic_question_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "diagnostic_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diagnostic_questions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          goals: string[]
+          help_text: string
+          id: string
+          internal_notes: string
+          key: string
+          placeholder: string
+          published_at: string | null
+          question: string
+          question_type: string
+          required: boolean
+          short_label: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          goals?: string[]
+          help_text?: string
+          id?: string
+          internal_notes?: string
+          key: string
+          placeholder?: string
+          published_at?: string | null
+          question: string
+          question_type?: string
+          required?: boolean
+          short_label?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          goals?: string[]
+          help_text?: string
+          id?: string
+          internal_notes?: string
+          key?: string
+          placeholder?: string
+          published_at?: string | null
+          question?: string
+          question_type?: string
+          required?: boolean
+          short_label?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       diagnostic_sessions: {
         Row: {
           answers: Json
@@ -1186,6 +1293,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      question_change_log: {
+        Row: {
+          action: string
+          changed_by: string | null
+          created_at: string
+          field: string | null
+          id: string
+          new_value: string | null
+          previous_value: string | null
+          question_id: string | null
+          question_key: string
+        }
+        Insert: {
+          action: string
+          changed_by?: string | null
+          created_at?: string
+          field?: string | null
+          id?: string
+          new_value?: string | null
+          previous_value?: string | null
+          question_id?: string | null
+          question_key: string
+        }
+        Update: {
+          action?: string
+          changed_by?: string | null
+          created_at?: string
+          field?: string | null
+          id?: string
+          new_value?: string | null
+          previous_value?: string | null
+          question_id?: string | null
+          question_key?: string
+        }
+        Relationships: []
       }
       quote_versions: {
         Row: {
