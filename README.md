@@ -177,3 +177,7 @@ npm run dev
 ## Phase 3C — Content CMS (done)
 
 Admins can edit homepage wording, FAQs, testimonials, SEO settings and legal pages at `/admin/content`, with draft/publish and a change history. Published content appears on the site; anything missing falls back to the built-in wording. See section 15 of the product document.
+
+## Phase 3D.1 — Question Builder (done)
+
+Diagnostic questions are now stored in the database and managed at `/admin/questions` (draft/published/archived, ordering, answer options with stable keys, preview, history). Published questions drive the public diagnostic; the built-in questions remain the fallback. Recommendation Rules are a separate future phase (3D.2). See section 16 of the product document.

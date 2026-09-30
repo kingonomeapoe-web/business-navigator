@@ -14,7 +14,9 @@ import {
   type Classification,
 } from "@/lib/builder.functions";
 import { captureEmail, emailQuote } from "@/lib/commerce.functions";
-import { DIAGNOSTIC_QUESTIONS, GOAL_OPTIONS, PILLARS } from "@/lib/diagnostic-content";
+import { GOAL_OPTIONS, PILLARS } from "@/lib/diagnostic-content";
+import type { PublicQuestion } from "@/lib/question-schemas";
+import { fallbackQuestions, getPublicQuestions } from "@/lib/questions.functions";
 
 export const Route = createFileRoute("/build")({
   head: () => ({
@@ -81,9 +83,24 @@ function BuildPage() {
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
 
+  // Published questions from the Question Builder; the built-in set is used until they load or if none exist.
+  const [allQuestions, setAllQuestions] = useState<PublicQuestion[]>(() => fallbackQuestions());
+  const loadQuestions = useServerFn(getPublicQuestions);
+  useEffect(() => {
+    let cancelled = false;
+    loadQuestions()
+      .then((res) => {
+        if (!cancelled && res.questions.length > 0) setAllQuestions(res.questions);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [loadQuestions]);
+
   const questions = useMemo(
-    () => DIAGNOSTIC_QUESTIONS.filter((q) => !q.goals || q.goals.some((g) => goals.includes(g))),
-    [goals],
+    () => allQuestions.filter((q) => !q.goals || q.goals.some((g) => goals.includes(g))),
+    [allQuestions, goals],
   );
 
   const order: StepId[] = useMemo(
@@ -414,10 +431,11 @@ function BuildPage() {
                 const question = questions.find((q) => q.id === id);
                 if (!question) return null;
                 const current = answers[id] ?? [];
+                const isChoice = question.type === "single_choice" || question.type === "multi_choice" || question.type === "yes_no";
                 const toggle = (optionId: string) => {
                   setAnswers((prev) => {
                     const existing = prev[id] ?? [];
-                    if (question.type === "single") return { ...prev, [id]: [optionId] };
+                    if (question.type !== "multi_choice") return { ...prev, [id]: [optionId] };
                     return {
                       ...prev,
                       [id]: existing.includes(optionId)
@@ -426,24 +444,57 @@ function BuildPage() {
                     };
                   });
                 };
+                const setText = (value: string) => setAnswers((prev) => ({ ...prev, [id]: value.trim() === "" ? [] : [value] }));
+                const textValue = current[0] ?? "";
+                const invalid =
+                  (question.type === "url" && textValue !== "" && !/^(https?:\/\/)?[\w-]+(\.[\w-]+)+\S*$/i.test(textValue.trim())) ||
+                  (question.type === "number" && textValue !== "" && Number.isNaN(Number(textValue)));
+                const inputClass =
+                  "mt-6 w-full rounded-xl border border-border bg-card p-4 text-[15px] outline-none focus:border-ring";
                 return (
                   <div>
                     <p className="eyebrow">About {businessLabel}</p>
                     <h1 className="display mt-4 text-3xl sm:text-4xl">{question.question}</h1>
                     {question.help && <p className="mt-3 text-sm text-muted-foreground">{question.help}</p>}
-                    <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                      {question.options.map((option) => (
-                        <Choice
-                          key={option.id}
-                          label={option.label}
-                          selected={current.includes(option.id)}
-                          onClick={() => toggle(option.id)}
-                        />
-                      ))}
-                    </div>
+                    {isChoice ? (
+                      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                        {question.options.map((option) => (
+                          <Choice
+                            key={option.id}
+                            label={option.label}
+                            selected={current.includes(option.id)}
+                            onClick={() => toggle(option.id)}
+                          />
+                        ))}
+                      </div>
+                    ) : question.type === "textarea" ? (
+                      <textarea
+                        className={`${inputClass} min-h-32`}
+                        value={textValue}
+                        maxLength={2000}
+                        placeholder={question.placeholder}
+                        onChange={(e) => setText(e.target.value)}
+                      />
+                    ) : (
+                      <input
+                        className={inputClass}
+                        type={question.type === "number" ? "number" : question.type === "url" ? "url" : "text"}
+                        inputMode={question.type === "number" ? "decimal" : undefined}
+                        value={textValue}
+                        maxLength={500}
+                        placeholder={question.placeholder}
+                        onChange={(e) => setText(e.target.value)}
+                      />
+                    )}
+                    {invalid && (
+                      <p className="mt-2 text-sm text-destructive">
+                        {question.type === "url" ? "Please enter a valid web address." : "Please enter a number."}
+                      </p>
+                    )}
                     <StepActions
                       onBack={goBack}
-                      disabled={current.length === 0}
+                      disabled={invalid || (question.required && current.length === 0)}
+                      nextLabel={!question.required && current.length === 0 ? "Skip" : undefined}
                       onNext={async () => {
                         await persist({ answers });
                         goNext();

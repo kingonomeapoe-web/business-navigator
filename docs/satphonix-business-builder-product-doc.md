@@ -300,3 +300,19 @@ Admin sign-in as `super_admin`; dashboard rendering with live counts (27 active 
 **Out of scope by design:** pricing, recommendation rules, diagnostic logic, payments and portal behaviour are not editable as content.
 
 **Remaining:** wire more diagnostic-step wording and per-page SEO records into page metadata; legal text must be approved by a lawyer before publishing.
+
+## 16. Phase 3D.1 — Question Builder
+
+**Built:** `/admin/questions` is a real Question Builder (no longer a placeholder). Admins can search/filter, create, edit, duplicate, reorder (move up/down), publish, unpublish, archive and — only when safe — delete diagnostic questions, with a live visitor preview and per-question change history.
+
+**Data model:** `diagnostic_questions` (stable `key`, question, short label, help text, type, required, placeholder, display order, status draft/published/archived, conditional `goals`, internal notes, author/timestamps, `published_at`), `diagnostic_question_options` (stable option `key` unique per question, label, description, order, active, notes) and `question_change_log`. Types: single choice, multiple choice, short text, long text, number, yes/no (fixed keys `yes`/`no`), web address.
+
+**Stable identifiers:** answers are stored in `diagnostic_sessions.answers` as `{ question_key: [option_key | text] }`. A question's key locks once it has been published or answered; option keys lock once answered. Removed options on answered questions are deactivated, not deleted. Questions that were published or answered are archived instead of deleted, so historical runs stay interpretable.
+
+**Safe publishing:** server-side Zod validation plus publish checks (text, valid unique key, valid type, at least one active option for choice questions, unique option keys). Visitors can only read published questions and active options of published questions (database rules + explicit server filter).
+
+**Public diagnostic:** loads published questions in configured order. If none are published or loading fails, it uses the built-in questions, so the diagnostic never breaks. The five existing questions (geography, acquisition, conversion, follow_up, problems) were migrated with their original keys, wording, options and order, and seeded as **draft** — the live diagnostic is unchanged until an admin publishes them. Note: once any question is published, only published questions are shown, so publish the full set together.
+
+**Separation:** the seven starter FAQs are Content CMS FAQs (public help content), not diagnostic questions; they stay in Admin → Content and were not duplicated or changed.
+
+**Not in this phase:** configurable recommendation rules (Phase 3D.2). `src/lib/recommend.ts` is unchanged and still reads the same stable keys.
