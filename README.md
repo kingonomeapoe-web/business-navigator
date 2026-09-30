@@ -181,3 +181,6 @@ Admins can edit homepage wording, FAQs, testimonials, SEO settings and legal pag
 ## Phase 3D.1 — Question Builder (done)
 
 Diagnostic questions are now stored in the database and managed at `/admin/questions` (draft/published/archived, ordering, answer options with stable keys, preview, history). Published questions drive the public diagnostic; the built-in questions remain the fallback. Recommendation Rules are a separate future phase (3D.2). See section 16 of the product document.
+
+### Phase 3D.2 — Recommendation Rules
+Admin → Rules lets admins create, test, simulate, activate and archive deterministic recommendation rules layered on the built-in engine, with automatic fallback, versioning and audit history. Rules never change prices. See the product document for details.
