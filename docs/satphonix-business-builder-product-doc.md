@@ -316,3 +316,25 @@ Admin sign-in as `super_admin`; dashboard rendering with live counts (27 active 
 **Separation:** the seven starter FAQs are Content CMS FAQs (public help content), not diagnostic questions; they stay in Admin → Content and were not duplicated or changed.
 
 **Not in this phase:** configurable recommendation rules (Phase 3D.2). `src/lib/recommend.ts` is unchanged and still reads the same stable keys.
+
+## Phase 3D.2 — Configurable Recommendation Rules (implemented, ready for testing)
+
+**What rules are.** Deterministic "when → then" business rules managed at Admin → Rules. They sit on top of the built-in engine (`src/lib/recommend.ts`), which remains the baseline, safety layer and fallback. No AI decides what is sold.
+
+**Pipeline** (`src/lib/rules-engine.ts`): profile → built-in `decide()` → active rules overlay → fixed dependencies (`enforceDependencies`: ecommerce → payments, follow-up automation → CRM) → deterministic ordering → structured `RecommendationResult` (contract v1: component, name, pillar, verdict, reason, priority, source, reason source, rule key/version, baseline verdict, requiredBy, conflicts, order). This is the input for the future Website Blueprint Engine (3D.3, not built).
+
+**Lifecycle.** Draft → Active → Archived. Only active rules affect visitors. Activating snapshots a numbered version into `recommendation_rule_versions`; editing an active rule creates a new version. Rules that were ever active are archived, never deleted. All changes are logged in `rule_change_log`.
+
+**Conditions** reference stable keys only (question keys, option keys, goal IDs, classification fields): answer (is / is not / includes / does not include / answered / not answered), text (… / empty / not empty), number (=, ≠, >, ≥, <, ≤), classification, goal selected / not selected. ALL / ANY groups, nested up to 3 levels. An empty group never matches. No eval or dynamic code.
+
+**Actions:** recommend, mark optional, exclude, set reason, set display priority. Actions reference catalogue components by slug; missing or archived components are skipped with a warning. Rules cannot change prices.
+
+**Conflicts.** Rules are ordered by priority (high first), then key. The highest-priority matching rule sets a component's verdict. If equal-priority matching rules disagree, the built-in verdict is kept and the conflict is recorded; the admin editor warns about possible equal-priority conflicts before they happen. Dependencies always run last and win.
+
+**Fallback.** No active rules, rules that fail to load, invalid rules or any evaluation error → the built-in engine result is used (invalid rules are skipped individually). Errors are logged server-side; visitors never see them.
+
+**Historical safety.** Quotes, quote versions, orders and projects store immutable snapshots and are never recomputed from rules. Each diagnostic session stores its latest `recommendation_trace` (decisions, sources, rule IDs and versions). Note: revisiting an unaccepted plan re-evaluates with today's rules; accepted/paid quotes are unaffected.
+
+**Testing & safe activation.** In the rule editor, "Test this rule" shows MATCHED / NOT MATCHED with a ✓/✗ per condition for a sample client. "Simulate diagnostic" compares built-in vs rule-driven results (Added / Removed / Changed / Unchanged), optionally including drafts. Recommended flow: create as draft → test → simulate with drafts → activate.
+
+**Parity.** Three starter draft rules mirror built-in behaviour (WhatsApp, online shop, premium design for high-value leads). All other logic remains owned by `recommend.ts`; full parity is intentionally not claimed. Automated tests: `bun run test` (17 engine tests).

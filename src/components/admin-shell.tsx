@@ -12,14 +12,14 @@ type NavItem = { label: string; to: string; ready: boolean };
 
 export const ADMIN_NAV: NavItem[] = [
   { label: "Dashboard", to: "/admin", ready: true },
+  { label: "Questions", to: "/admin/questions", ready: true },
+  { label: "Rules", to: "/admin/rules", ready: true },
   { label: "Components", to: "/admin/components", ready: true },
   { label: "Pricing", to: "/admin/pricing", ready: true },
+  { label: "Content", to: "/admin/content", ready: true },
   { label: "Projects", to: "/admin/projects", ready: true },
   { label: "Clients", to: "/admin/clients", ready: false },
   { label: "Quotes", to: "/admin/quotes", ready: false },
-  { label: "Content", to: "/admin/content", ready: true },
-  { label: "Questions", to: "/admin/questions", ready: true },
-  { label: "Rules", to: "/admin/rules", ready: false },
   { label: "Industries", to: "/admin/industries", ready: false },
   { label: "Settings", to: "/admin/settings", ready: false },
 ];

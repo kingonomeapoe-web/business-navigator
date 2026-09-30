@@ -212,23 +212,29 @@ export function decide(profile: DiagnosticProfile): Decision[] {
     "Update your own text, images and pages without waiting on anyone.",
   );
 
-  // Dependencies: never recommend something whose prerequisite is excluded.
-  const byslug = new Map(out.map((d) => [d.slug, d]));
-  if (byslug.get("ecommerce")?.verdict === "recommended") {
-    const payments = byslug.get("payments");
-    if (payments && payments.verdict !== "recommended") {
-      payments.verdict = "recommended";
-      payments.reason = "An online shop needs a way to take payment.";
-    }
-  }
-  if (byslug.get("follow-up-automation")?.verdict === "recommended") {
-    const crm = byslug.get("crm");
-    if (crm && crm.verdict !== "recommended") {
-      crm.verdict = "recommended";
-      crm.reason = "Automatic follow-up needs an organised list of people to follow up with.";
-    }
-  }
-
   void has;
-  return out;
+  return enforceDependencies(out).decisions;
+}
+
+export type DependencyAdjustment = { slug: string; requiredBy: string; reason: string };
+
+/**
+ * Safety layer: fixed prerequisites that must hold no matter what produced the
+ * decisions (this engine or configurable rules). Mutates and returns the list.
+ */
+export function enforceDependencies(out: Decision[]): { decisions: Decision[]; adjustments: DependencyAdjustment[] } {
+  const adjustments: DependencyAdjustment[] = [];
+  const byslug = new Map(out.map((d) => [d.slug, d]));
+  const require = (parent: string, child: string, reason: string) => {
+    if (byslug.get(parent)?.verdict !== "recommended") return;
+    const dep = byslug.get(child);
+    if (dep && dep.verdict !== "recommended") {
+      dep.verdict = "recommended";
+      dep.reason = reason;
+      adjustments.push({ slug: child, requiredBy: parent, reason });
+    }
+  };
+  require("ecommerce", "payments", "An online shop needs a way to take payment.");
+  require("follow-up-automation", "crm", "Automatic follow-up needs an organised list of people to follow up with.");
+  return { decisions: out, adjustments };
 }
