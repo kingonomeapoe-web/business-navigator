@@ -4,11 +4,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { AlertTriangle, ArrowDown, ArrowUp, Check, Copy, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { AdminShell } from "@/components/admin-shell";
 import type { DiagnosticProfile } from "@/lib/recommend";
 import {
   ANSWER_OPS,
+  actionSchema,
+  conditionSchema,
   CLASSIFICATION_FIELDS,
   GOAL_OPS,
   NUMBER_OPS,
@@ -63,6 +66,17 @@ const emptyDraft = (): Draft => ({
   conditions: { kind: "group", mode: "all", children: [] },
   actions: [{ type: "recommend", component: "", reason: "", priority: 0 }],
 });
+
+/** Damaged stored data must never crash the editor: reset unreadable parts. */
+function safeDraft(r: RuleRow): Draft {
+  const c = conditionSchema.safeParse(r.conditions);
+  const a = z.array(actionSchema).safeParse(r.actions);
+  return {
+    ...r,
+    conditions: c.success && c.data.kind === "group" ? c.data : { kind: "group", mode: "all", children: [] },
+    actions: a.success ? a.data : [],
+  };
+}
 
 const input = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm";
 const btn = "inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs transition-colors hover:bg-muted disabled:opacity-50";
@@ -166,7 +180,7 @@ function RulesPage() {
                 key={selected}
                 ws={ws}
                 labels={labels}
-                initial={current ? { ...current } : emptyDraft()}
+                initial={current ? safeDraft(current) : emptyDraft()}
                 profile={profile}
                 setProfile={setProfile}
                 onSaved={(id) => { refresh(); setSelected(id); }}
