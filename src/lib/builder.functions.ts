@@ -263,6 +263,8 @@ export const buildPlan = createServerFn({ method: "POST" })
         token: z.string().uuid(),
         selected: z.array(z.string().max(80)).max(60).optional(),
         persistQuote: z.boolean().optional(),
+        /** Explicitly regenerate the recommendation snapshot with today's active rules. */
+        recalculate: z.boolean().optional(),
       })
       .parse(input),
   )
@@ -283,22 +285,34 @@ export const buildPlan = createServerFn({ method: "POST" })
       answers: session.answers,
       classification: session.classification as DiagnosticProfile["classification"],
     };
-    // Active configurable rules layered over the built-in engine; any failure
-    // falls back to the built-in engine (see rules-engine.ts). Prices are untouched.
+    // Recommendation snapshot: once generated for a given set of inputs, a plan is
+    // re-displayed from the saved snapshot. Later rule changes never alter it.
+    // A new snapshot is only produced when the diagnostic inputs change or when
+    // `recalculate: true` is passed explicitly.
+    const inputKey = JSON.stringify({ g: profile.goals, a: profile.answers, c: profile.classification });
+    const saved = (row as Record<string, unknown>)["recommendation_trace"] as
+      | { inputKey?: string; decisions?: { component: string; verdict: PlanItem["verdict"]; reason: string }[] }
+      | null;
     let decisions: Map<string, { slug: string; verdict: PlanItem["verdict"]; reason: string }>;
-    try {
-      const [{ safeRecommend }, { loadActiveRules }] = await Promise.all([import("./rules-engine"), import("./rules.server")]);
-      const catalogueInfo = new Map(catalog.map((c) => [c.slug, { name: c.name, pillar: c.pillar, status: "active", display_order: c.display_order }]));
-      const result = safeRecommend(profile, await loadActiveRules(), catalogueInfo);
-      if (result.warnings.length) console.warn("[rules]", result.warnings);
-      decisions = new Map(result.decisions.map((d) => [d.component, { slug: d.component, verdict: d.verdict, reason: d.reason }]));
-      await supabaseAdmin
-        .from("diagnostic_sessions")
-        .update({ recommendation_trace: { ...result, evaluatedAt: new Date().toISOString() } as never })
-        .eq("session_token", data.token);
-    } catch (err) {
-      console.error("[rules] pipeline failed, using built-in engine", err);
-      decisions = new Map(decide(profile).map((d) => [d.slug, d]));
+    if (!data.recalculate && saved?.inputKey === inputKey && Array.isArray(saved.decisions) && saved.decisions.length) {
+      decisions = new Map(saved.decisions.map((d) => [d.component, { slug: d.component, verdict: d.verdict, reason: d.reason }]));
+    } else {
+      // Active configurable rules layered over the built-in engine; any failure
+      // falls back to the built-in engine (see rules-engine.ts). Prices are untouched.
+      try {
+        const [{ safeRecommend }, { loadActiveRules }] = await Promise.all([import("./rules-engine"), import("./rules.server")]);
+        const catalogueInfo = new Map(catalog.map((c) => [c.slug, { name: c.name, pillar: c.pillar, status: "active", display_order: c.display_order }]));
+        const result = safeRecommend(profile, await loadActiveRules(), catalogueInfo);
+        if (result.warnings.length) console.warn("[rules]", result.warnings);
+        decisions = new Map(result.decisions.map((d) => [d.component, { slug: d.component, verdict: d.verdict, reason: d.reason }]));
+        await supabaseAdmin
+          .from("diagnostic_sessions")
+          .update({ recommendation_trace: { ...result, inputKey, input: profile, evaluatedAt: new Date().toISOString() } as never })
+          .eq("session_token", data.token);
+      } catch (err) {
+        console.error("[rules] pipeline failed, using built-in engine", err);
+        decisions = new Map(decide(profile).map((d) => [d.slug, d]));
+      }
     }
 
     const defaultSelection = [...decisions.values()].filter((d) => d.verdict === "recommended").map((d) => d.slug);
