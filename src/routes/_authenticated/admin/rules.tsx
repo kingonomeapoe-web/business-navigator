@@ -146,7 +146,7 @@ function RulesPage() {
                       <span className="text-sm font-medium">{r.name}</span>
                       <span className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ${STATUS_STYLE[r.status]}`}>{r.status}</span>
                     </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{describeRule(r, labels)}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{conditionSchema.safeParse(r.conditions).success ? describeRule(r, labels) : "This rule is damaged and is skipped. Open it to rebuild its conditions."}</p>
                   </button>
                   <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                     <span>Priority {r.priority}</span>
