@@ -338,3 +338,8 @@ Admin sign-in as `super_admin`; dashboard rendering with live counts (27 active 
 **Testing & safe activation.** In the rule editor, "Test this rule" shows MATCHED / NOT MATCHED with a ✓/✗ per condition for a sample client. "Simulate diagnostic" compares built-in vs rule-driven results (Added / Removed / Changed / Unchanged), optionally including drafts. Recommended flow: create as draft → test → simulate with drafts → activate.
 
 **Parity.** Three starter draft rules mirror built-in behaviour (WhatsApp, online shop, premium design for high-value leads). All other logic remains owned by `recommend.ts`; full parity is intentionally not claimed. Automated tests: `bun run test` (17 engine tests).
+
+### Phase 3D.2 hardening (verified)
+- **Plan snapshots:** a plan is saved with its inputs, rule versions and decisions on first generation. Reopening shows the saved snapshot; rule edits/activation/archiving never change it. A new snapshot is made only if the diagnostic answers/classification change, or when `buildPlan` is called with `recalculate: true` (explicit, not exposed to visitors yet).
+- **Damaged rules:** the admin editor opens damaged rules safely (resets unreadable parts) instead of crashing; the live diagnostic skips them and logs a warning.
+- **Live regression run:** a temporary rule was created as draft, tested, simulated, activated, edited (version 2), checked against a fresh public diagnostic, plan and quote, deliberately broken for a fallback check, then archived. Prices, quotes, orders and projects were unchanged.
